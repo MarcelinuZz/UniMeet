@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>UniMeet — BINUS University Student & Alumni Network</title>
+  
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+    <script src="https://cdn.tailwindcss.com"></script>
+  
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="p-2 sm:p-6 md:p-8 flex flex-col items-center">
+
+    <div id="toast-system">
+    <div class="toast-pill">
+      <span id="toast-system-icon" class="text-emerald-400 font-bold">✓</span>
+      <span id="toast-system-msg">Notifikasi</span>
+    </div>
+  </div>
+
+    <header class="w-full flex justify-center mb-5">
+    <div class="flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shadow-xl shadow-black/50 overflow-x-auto no-scrollbar max-w-full">
+      <button onclick="navigateTo(1)" data-target="1" class="jump-button tactile px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">1. Gate</button>
+      <button onclick="navigateTo(2)" data-target="2" class="jump-button tactile px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">2. Feed</button>
+      <button onclick="navigateTo(3)" data-target="3" class="jump-button tactile px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">3. Detail</button>
+      <button onclick="navigateTo(4)" data-target="4" class="jump-button tactile px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">4. Host</button>
+      <button onclick="navigateTo(5)" data-target="5" class="jump-button tactile px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">5. Chat</button>
+      <button onclick="navigateTo(6)" data-target="6" class="jump-button tactile px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">6. Kating</button>
+      <button onclick="navigateTo(7)" data-target="7" class="jump-button tactile px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">7. Jadwal</button>
+      <button onclick="navigateTo(8)" data-target="8" class="jump-button tactile px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">8. Profile</button>
+    </div>
+  </header>
+
+    <main class="phone-mockup">
+
+        <div class="dynamic-island-pill">
+      <div class="dynamic-island-sensor"></div>
+      <div class="dynamic-island-camera"></div>
+    </div>
+
+        <div class="phone-screen-inner">
+
+            <div class="ios-status-bar">
+        <span>9:41</span>
+        <div class="flex items-center gap-1.5 text-[11px] font-bold">
+          <span>5G</span>
+          <span>100%</span>
+          <div class="w-5 h-2.5 rounded-sm border border-slate-900 p-0.5 flex items-center">
+            <div class="w-full h-full bg-slate-900 rounded-[1px]"></div>
+          </div>
+        </div>
+      </div>
+
+            <section data-screen="1" class="screen-view active p-4 pb-8 space-y-4 no-scrollbar">
+        <div class="space-y-1.5 pt-2">
+          <div class="flex gap-1.5">
+            <span class="badge-pill bg-indigo-100 text-indigo-700">UNIMEET CAMPUS HUB</span>
+            <span class="badge-pill bg-blue-100 text-blue-800">BINUS UNIVERSITY</span>
+          </div>
+          <h2 class="text-2xl font-black text-slate-900 leading-tight">Your Campus Life,<br/>Unlocked.</h2>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Temukan squad olahraga, teman belajar ujian, dan relasi kating khusus Binusian terverifikasi.
+          </p>
+
+          <div class="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-600 shadow-sm">
+            <span>👥</span>
+            <span class="font-medium text-[11px]">Trusted by Marcelinus, Oliver, Jecsen & 140+ peers</span>
+          </div>
+        </div>
+
+                <div class="card-surface p-4 space-y-3.5">
+          <div>
+            <h3 class="text-sm font-extrabold text-slate-900">Institutional Access Gate</h3>
+            <p class="text-[9px] font-bold text-indigo-600 tracking-wider">ZERO SPAM • 100% VERIFIED STUDENT NETWORK</p>
+            <p class="text-[11px] text-slate-500 mt-1">UniMeet hanya dapat diakses melalui akun resmi Binusian.</p>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[11px] font-bold text-slate-700">Campus Student Email</label>
+            <div class="flex gap-1">
+              <span class="tactile badge-pill bg-indigo-50 border border-indigo-200 text-indigo-700">@binus.ac.id</span>
+              <span class="tactile badge-pill bg-slate-100 text-slate-500">@binus.edu</span>
+              <span class="tactile badge-pill bg-slate-100 text-slate-500">@alumni.binus.ac.id</span>
+            </div>
+            <div class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs mt-1">
+              <span>✉️</span>
+              <span class="text-slate-800 font-semibold text-xs">marcelinus.wijaya@binus.ac.id</span>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[11px] font-bold text-slate-700">Student ID / NIM</label>
+            <div class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+              <span>🆔</span>
+              <span class="text-slate-600 font-medium text-xs">2602194831 (Marcelinus W. Oey - CS '24)</span>
+            </div>
+          </div>
+
+          <button onclick="handleLogin()" class="btn-primary tactile w-full py-3 text-xs shadow-md">
+            <span>Send Verification Code</span> ➔
+          </button>
+
+          <div class="flex items-center gap-2 text-[10px] text-slate-400 font-bold justify-center pt-1">
+            <span class="h-px bg-slate-200 flex-1"></span>
+            <span>OR SIGN IN DIRECT</span>
+            <span class="h-px bg-slate-200 flex-1"></span>
+          </div>
+
+          <button onclick="handleLogin()" class="tactile w-full py-2.5 bg-slate-50 border border-slate-200 text-blue-900 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-100">
+            <span>🔐</span> Binusmaya / Campus Portal SSO
+          </button>
+        </div>
+
+        <div class="space-y-1 text-[11px] text-slate-500 px-1 pt-1">
+          <div class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Ekosistem tertutup & aman untuk mahasiswa aktif</div>
+          <div class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> Profil terlindung verifikasi Binus Official ID</div>
+        </div>
+      </section>
+
+            <section data-screen="2" class="screen-view p-4 pb-20 space-y-3.5 no-scrollbar">
+                <div class="flex items-center justify-between shrink-0">
+          <div>
+            <h2 class="text-lg font-black tracking-tight text-slate-900">UniMeet.</h2>
+            <div onclick="openModal('modal-campus')" class="text-[11px] text-indigo-600 font-bold cursor-pointer flex items-center gap-1">
+              <span>📍</span> <span id="current-campus-label">BINUS Anggrek Campus ▾</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 text-slate-600">
+            <button onclick="showToast('Fitur pencarian aktivitas aktif!', 'success', '🔍')" class="tactile w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs shadow-sm">
+              🔍
+            </button>
+            <button onclick="showToast('Belum ada notifikasi baru', 'success', '🔔')" class="tactile relative w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs shadow-sm">
+              🔔
+              <span class="w-2 h-2 rounded-full bg-rose-500 absolute top-1 right-1"></span>
+            </button>
+          </div>
+        </div>
+
+                <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-1 -mx-4 px-4">
+          <button onclick="setFilterCategory('all', this)" class="feed-cat-btn tactile badge-pill bg-indigo-600 text-white shadow-sm">🔥 All</button>
+          <button onclick="setFilterCategory('sports', this)" class="feed-cat-btn tactile badge-pill bg-white text-slate-700 border border-slate-200">🏸 Sports</button>
+          <button onclick="setFilterCategory('study', this)" class="feed-cat-btn tactile badge-pill bg-white text-slate-700 border border-slate-200">📚 Study</button>
+          <button onclick="setFilterCategory('gaming', this)" class="feed-cat-btn tactile badge-pill bg-white text-slate-700 border border-slate-200">🎮 Gaming</button>
+        </div>
+
+                <div class="p-3.5 rounded-2xl bg-gradient-to-r from-indigo-700 to-indigo-900 text-white flex items-center justify-between shadow-md">
+          <div>
+            <div class="text-xs font-bold">Need urgent study buddies?</div>
+            <div class="text-[10px] text-indigo-200">Library quiet rooms & exam drills</div>
+          </div>
+          <button onclick="navigateTo(4)" class="tactile px-3 py-1.5 bg-white text-indigo-950 rounded-xl text-[11px] font-extrabold shadow-sm">
+            Squad Up →
+          </button>
+        </div>
+
+                <div class="flex items-center justify-between text-xs pt-1">
+          <span class="font-extrabold text-slate-800">Happening on Campus</span>
+          <span class="badge-pill bg-rose-100 text-rose-700 text-[10px] font-bold">● LIVE FEED</span>
+        </div>
+
+                <div id="feed-meetups-list" class="space-y-3">
+                  </div>
+      </section>
+
+            <section data-screen="3" class="screen-view p-4 pb-20 space-y-4 no-scrollbar">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2.5 shrink-0">
+          <button onclick="navigateBack()" class="tactile flex items-center gap-1.5 text-xs font-bold text-slate-800">
+            <span>←</span> Kembali
+          </button>
+          <span class="text-xs font-extrabold text-slate-900">Event Details</span>
+          <button onclick="showToast('Link squad disalin ke clipboard!', 'success', '🔗')" class="tactile text-xs font-bold text-indigo-600">
+            🔗 Share
+          </button>
+        </div>
+
+                <div class="card-surface p-4 space-y-3">
+          <div class="flex gap-1.5">
+            <span class="badge-pill bg-indigo-100 text-indigo-700">SPORTS & FITNESS</span>
+            <span class="badge-pill bg-emerald-100 text-emerald-800">COURT BOOKED & PAID</span>
+          </div>
+
+          <h3 id="detail-title" class="text-base font-black text-slate-900 leading-snug">
+            Badminton Double Sparring (Intermediate)
+          </h3>
+
+          <div class="space-y-2 text-xs text-slate-600 pt-1">
+            <div class="flex items-start gap-2">
+              <span class="text-sm">📅</span>
+              <div>
+                <div id="detail-time" class="font-bold text-slate-800">Today, Friday • 18:30 - 20:30 WIB</div>
+                <div class="text-[10px] text-rose-500 font-semibold">Starts in 3h 16m • 2 spots left</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-sm">📍</span>
+              <div>
+                <div id="detail-location" class="font-bold text-slate-800">Sports Hall Lt. 3 - Court B</div>
+                <div class="text-[10px] text-slate-400">BINUS University Anggrek Campus</div>
+              </div>
+            </div>
+          </div>
+
+          <p id="detail-description" class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 leading-relaxed">
+            Sparring ganda santai intermediate! Lapangan sudah dibooking dan lunas lewat Binus Sports Club.
+          </p>
+
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-indigo-50/70 border border-indigo-100">
+            <div class="flex items-center gap-2.5">
+              <div id="detail-host-avatar" class="w-8 h-8 rounded-full bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center">
+                OW
+              </div>
+              <div>
+                <div id="detail-host-name" class="text-xs font-bold text-slate-900">Oliver Wiryateja Herlianto</div>
+                <div id="detail-host-meta" class="text-[10px] text-slate-500">Host • CS '24 • ⭐ 4.9 (14 Hosted)</div>
+              </div>
+            </div>
+            <span class="badge-pill bg-indigo-600 text-white text-[10px]">Verified Host</span>
+          </div>
+        </div>
+
+                <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-slate-800">Squad Roster</span>
+            <span id="detail-slots-count" class="text-[11px] font-bold text-indigo-600">4 of 6 Joined</span>
+          </div>
+
+          <div id="detail-roster-list" class="space-y-1.5">
+                      </div>
+        </div>
+
+                <div class="pt-2 flex items-center justify-between gap-3">
+          <div>
+            <div class="text-[10px] text-slate-400 font-semibold">Court Share Fee</div>
+            <div id="detail-cost" class="text-xs font-black text-slate-900">Rp 15.000 / pax</div>
+          </div>
+          <button id="detail-rsvp-btn" class="btn-primary tactile flex-1 py-3 text-xs shadow-md">
+            RSVP & Join Squad ➔
+          </button>
+        </div>
+      </section>
+
+            <section data-screen="4" class="screen-view p-4 pb-20 space-y-4 no-scrollbar">
+        <div class="flex items-center justify-between border-b border-slate-200 pb-2.5 shrink-0">
+          <button onclick="navigateBack()" class="tactile flex items-center gap-1.5 text-xs font-bold text-slate-800">
+            <span>←</span> Kembali
+          </button>
+          <span class="text-xs font-extrabold text-slate-900">Host New Meetup</span>
+          <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Step 1 of 2</span>
+        </div>
+
+        <div class="card-surface p-4 space-y-3.5">
+          <div class="space-y-1">
+            <label class="text-[11px] font-bold text-slate-700">Judul Aktivitas</label>
+            <input id="host-input-title" type="text" placeholder="Contoh: Badminton Sparring / Bedah Soal Kalkulus" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-indigo-500 font-medium">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[11px] font-bold text-slate-700">Kategori</label>
+            <select id="host-select-category" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-indigo-500 bg-white font-medium">
+              <option value="sports">🏸 Sports & Olahraga</option>
+              <option value="study">📚 Study & Bedah Ujian</option>
+              <option value="gaming">🎮 Gaming & Esports</option>
+              <option value="tech">💻 Coding & Hackathon</option>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[11px] font-bold text-slate-700">Waktu & Jadwal</label>
+            <input id="host-input-time" type="text" value="Besok, 18:30 WIB" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-indigo-500 font-medium">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[11px] font-bold text-slate-700">Titik Kumpul / Lokasi Kampus</label>
+            <input id="host-input-location" type="text" value="BINUS Anggrek Sports Hall Lt. 3" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-indigo-500 font-medium">
+          </div>
+
+                    <div class="space-y-1">
+            <label class="text-[11px] font-bold text-slate-700">Kapasitas Maksimal Peserta</label>
+            <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="text-xs text-slate-600 font-medium">Total Peserta Squad</span>
+              <div class="flex items-center gap-3">
+                <button onclick="changeHostSlot(-1)" class="tactile w-7 h-7 rounded-lg bg-white border border-slate-200 font-bold text-sm shadow-sm flex items-center justify-center">-</button>
+                <span id="host-slot-val" class="font-extrabold text-xs text-indigo-700">6</span>
+                <button onclick="changeHostSlot(1)" class="tactile w-7 h-7 rounded-lg bg-white border border-slate-200 font-bold text-sm shadow-sm flex items-center justify-center">+</button>
+              </div>
+            </div>
+          </div>
+
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-indigo-50/60 border border-indigo-100">
+            <div>
+              <div class="text-xs font-bold text-slate-900">Verified Campus Only</div>
+              <div class="text-[10px] text-slate-500">Hanya mahasiswa ber-email @binus.ac.id</div>
+            </div>
+            <span class="badge-pill bg-indigo-600 text-white text-[10px]">Aktif ✓</span>
+          </div>
+
+          <button onclick="publishNewMeetup()" class="btn-primary tactile w-full py-3 text-xs shadow-md">
+            🚀 Publish Meetup ke Kampus
+          </button>
+        </div>
+      </section>
+
+            <section data-screen="5" class="screen-view p-4 pb-20 space-y-3 no-scrollbar">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2.5 shrink-0">
+          <div>
+            <h3 class="text-xs font-black text-slate-900">Badminton Double Sparring 🏸</h3>
+            <div class="text-[10px] text-emerald-600 font-semibold">● Court B Terkonfirmasi • 18:30 WIB</div>
+          </div>
+          <button onclick="navigateTo(3)" class="tactile text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">
+            Roster 👥
+          </button>
+        </div>
+
+                <div class="card-surface p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold text-indigo-700 uppercase tracking-wide">🗳️ Active Squad Poll</span>
+            <span id="poll-total-votes" class="text-[10px] font-bold text-slate-400">4 votes</span>
+          </div>
+
+          <p class="text-xs font-bold text-slate-800 leading-snug">
+            Pemanasan & stretching bareng mulai jam berapa guys?
+          </p>
+
+                    <div onclick="votePoll(0)" class="tactile p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-indigo-50/40 cursor-pointer">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="font-bold text-slate-800">18:15 WIB (15 menit sebelum)</span>
+              <span id="poll-opt0-pct" class="font-extrabold text-indigo-600 text-[10px]">75% (3 votes)</span>
+            </div>
+            <div class="poll-progress-bg">
+              <div id="poll-opt0-bar" class="poll-progress-bar" style="width: 75%;"></div>
+            </div>
+          </div>
+
+                    <div onclick="votePoll(1)" class="tactile p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-indigo-50/40 cursor-pointer">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="font-bold text-slate-800">18:30 WIB (On time langsung main)</span>
+              <span id="poll-opt1-pct" class="font-extrabold text-slate-500 text-[10px]">25% (1 vote)</span>
+            </div>
+            <div class="poll-progress-bg">
+              <div id="poll-opt1-bar" class="poll-progress-bar" style="width: 25%;"></div>
+            </div>
+          </div>
+        </div>
+
+                <div id="chat-stream-box" class="h-64 overflow-y-auto no-scrollbar space-y-2.5 p-1">
+                    <div class="flex flex-col items-start space-y-1">
+            <div class="text-[10px] text-indigo-700 font-bold">Oliver Wiryateja (Host) • 16:45</div>
+            <div class="bg-white border border-slate-200 text-slate-800 p-2.5 rounded-2xl rounded-tl-xs text-xs max-w-[85%] shadow-sm">
+              Halo squad! Lapangan Badminton Court B udah resmi lunas ya. Bukti booking sudah terlampir.
+            </div>
+          </div>
+
+          <div class="flex flex-col items-start space-y-1">
+            <div class="text-[10px] text-orange-600 font-bold">Melvin Goh • 16:50</div>
+            <div class="bg-white border border-slate-200 text-slate-800 p-2.5 rounded-2xl rounded-tl-xs text-xs max-w-[85%] shadow-sm">
+              Mantap Li! Nanti gua bawa shuttlecock tambahan satu tabung Yonex.
+            </div>
+          </div>
+
+          <div class="flex flex-col items-start space-y-1">
+            <div class="text-[10px] text-cyan-700 font-bold">Jecsen • 17:02</div>
+            <div class="bg-white border border-slate-200 text-slate-800 p-2.5 rounded-2xl rounded-tl-xs text-xs max-w-[85%] shadow-sm">
+              Gua berangkat bareng dari kosan Syahdan jam 18:00, ada yang mau tebeng motor?
+            </div>
+          </div>
+        </div>
+
+                <div class="flex items-center gap-1.5 pt-1 border-t border-slate-200">
+          <input id="chat-type-input" type="text" placeholder="Tulis pesan ke squad..." class="flex-1 p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-indigo-500 font-medium">
+          <button onclick="sendLiveChat()" class="tactile px-3.5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-sm">
+            Kirim
+          </button>
+        </div>
+      </section>
+
+            <section data-screen="6" class="screen-view p-4 pb-20 space-y-3.5 no-scrollbar">
+        <div class="shrink-0">
+          <h2 class="text-base font-black text-slate-900">Kating & Senior Connect</h2>
+          <p class="text-[11px] text-slate-500">Bimbingan akademik, konsultasi magang, dan peer review portofolio.</p>
+        </div>
+
+                <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-1">
+          <button onclick="filterMentorByMajor('all', this)" class="mentor-filter-pill tactile badge-pill bg-indigo-600 text-white shadow-sm">Semua Jurusan</button>
+          <button onclick="filterMentorByMajor('cs', this)" class="mentor-filter-pill tactile badge-pill bg-white text-slate-700 border border-slate-200">Computer Science</button>
+          <button onclick="filterMentorByMajor('cyber', this)" class="mentor-filter-pill tactile badge-pill bg-white text-slate-700 border border-slate-200">Cyber Security</button>
+          <button onclick="filterMentorByMajor('design', this)" class="mentor-filter-pill tactile badge-pill bg-white text-slate-700 border border-slate-200">Design & IDT</button>
+        </div>
+
+                <div class="space-y-2.5">
+                    <div data-major="cs" class="mentor-card-item card-surface p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center">OW</div>
+                <div>
+                  <div class="text-xs font-bold text-slate-900">Oliver Wiryateja Herlianto</div>
+                  <div class="text-[10px] text-slate-500">CS '24 • Cloud & Software Eng • ⭐ 5.0</div>
+                </div>
+              </div>
+              <span class="badge-pill bg-indigo-100 text-indigo-700 text-[10px]">Top Mentor</span>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+              <span class="text-[10px] text-slate-400">Available: Jumat & Sabtu sore</span>
+              <button onclick="requestCoffeeChat('Oliver Wiryateja')" class="tactile px-3 py-1 bg-indigo-600 text-white font-bold text-[11px] rounded-lg shadow-sm">
+                Ajukan Coffee Chat ☕
+              </button>
+            </div>
+          </div>
+
+                    <div data-major="cyber" class="mentor-card-item card-surface p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-orange-600 text-white font-bold text-xs flex items-center justify-center">MG</div>
+                <div>
+                  <div class="text-xs font-bold text-slate-900">Melvin Goh</div>
+                  <div class="text-[10px] text-slate-500">Cyber Sec '24 • Offensive Security • ⭐ 4.9</div>
+                </div>
+              </div>
+              <span class="badge-pill bg-orange-100 text-orange-700 text-[10px]">Internship Lead</span>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+              <span class="text-[10px] text-slate-400">Available: Malam online Discord</span>
+              <button onclick="requestCoffeeChat('Melvin Goh')" class="tactile px-3 py-1 bg-indigo-600 text-white font-bold text-[11px] rounded-lg shadow-sm">
+                Ajukan Coffee Chat ☕
+              </button>
+            </div>
+          </div>
+
+                    <div data-major="design" class="mentor-card-item card-surface p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">SJ</div>
+                <div>
+                  <div class="text-xs font-bold text-slate-900">Samuel Joseph Wijaya</div>
+                  <div class="text-[10px] text-slate-500">IDT '25 • UI/UX & Design Systems • ⭐ 4.95</div>
+                </div>
+              </div>
+              <span class="badge-pill bg-purple-100 text-purple-700 text-[10px]">Figma Pro</span>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+              <span class="text-[10px] text-slate-400">Available: Sabtu siang di Library</span>
+              <button onclick="requestCoffeeChat('Samuel Joseph')" class="tactile px-3 py-1 bg-indigo-600 text-white font-bold text-[11px] rounded-lg shadow-sm">
+                Ajukan Coffee Chat ☕
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+            <section data-screen="7" class="screen-view p-4 pb-20 space-y-3.5 no-scrollbar">
+        <div class="shrink-0">
+          <h2 class="text-base font-black text-slate-900">My Schedules & Passes</h2>
+          <p class="text-[11px] text-slate-500">Jadwal kegiatan kampus dan tiket akses turnstile.</p>
+        </div>
+
+        <div class="flex bg-slate-200/70 p-1 rounded-xl text-xs font-bold">
+          <button class="tactile flex-1 py-1.5 bg-white text-indigo-700 rounded-lg shadow-sm">Mendatang (2)</button>
+          <button class="tactile flex-1 py-1.5 text-slate-500">Riwayat Selesai</button>
+        </div>
+
+                <div class="card-surface p-3.5 space-y-3 border-l-4 border-l-indigo-600">
+          <div class="flex items-center justify-between">
+            <span class="badge-pill bg-indigo-100 text-indigo-700">TODAY • 18:30 WIB</span>
+            <span class="text-[10px] font-bold text-emerald-600">CONFIRMED ✓</span>
+          </div>
+
+          <div>
+            <h4 class="text-xs font-bold text-slate-900">Badminton Double Sparring 🏸</h4>
+            <p class="text-[11px] text-slate-500">📍 Sports Hall Lt. 3 - Court B (Anggrek)</p>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+            <div>
+              <div class="text-[9px] text-slate-400 uppercase font-bold">Check-in Turnstile</div>
+              <div class="text-xs font-black text-slate-800">SPORT-ANG-94831</div>
+            </div>
+            <button onclick="openQrPass()" class="tactile px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm">
+              <span>🎟️</span> Buka QR Pass
+            </button>
+          </div>
+        </div>
+
+                <div class="card-surface p-3.5 space-y-3 border-l-4 border-l-orange-500">
+          <div class="flex items-center justify-between">
+            <span class="badge-pill bg-orange-100 text-orange-700">TONIGHT • 20:00 WIB</span>
+            <span class="text-[10px] font-bold text-emerald-600">CONFIRMED ✓</span>
+          </div>
+
+          <div>
+            <h4 class="text-xs font-bold text-slate-900">Valorant 5v5 Custom & Boba 🎯</h4>
+            <p class="text-[11px] text-slate-500">📍 Discord Voice & Syahdan Boba</p>
+          </div>
+
+          <button onclick="navigateTo(5)" class="tactile w-full py-2 bg-slate-100 text-slate-800 rounded-lg text-xs font-bold text-center">
+            Buka Chat Squad ➔
+          </button>
+        </div>
+      </section>
+
+            <section data-screen="8" class="screen-view p-4 pb-20 space-y-4 no-scrollbar">
+        <div class="shrink-0 flex items-center justify-between">
+          <h2 class="text-base font-black text-slate-900">Student Profile</h2>
+          <span class="badge-pill bg-emerald-100 text-emerald-700">VERIFIED BINUSIAN</span>
+        </div>
+
+                <div onclick="showToast('Flazz Card aktif! Siap tap di turnstile perpustakaan & gym.', 'success', '💳')" class="flazz-card tactile flex flex-col justify-between">
+          <div class="flex items-center justify-between z-10">
+            <div>
+              <div class="text-[10px] font-bold tracking-widest uppercase opacity-80">BINUS UNIVERSITY</div>
+              <div class="text-sm font-extrabold tracking-tight">DIGITAL CAMPUS PASS</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs font-black text-yellow-300">Flazz</div>
+              <div class="text-[9px] opacity-75">BCA Supported</div>
+            </div>
+          </div>
+
+                    <div class="flex items-center gap-3 z-10">
+            <div class="w-8 h-6 rounded bg-amber-400/80 border border-amber-300/60 shadow-inner flex items-center justify-center text-[10px]">💳</div>
+            <span class="text-xs opacity-75">📶 Contactless</span>
+          </div>
+
+          <div class="z-10 flex items-end justify-between">
+            <div>
+              <div class="text-xs font-extrabold tracking-wider">MARCELINUS WIJAYA OEY</div>
+              <div class="text-[10px] font-mono tracking-widest opacity-80">NIM: 2602194831 • CS '24</div>
+            </div>
+            <div class="text-right text-[10px] opacity-80">
+              VALID THRU 08/28
+            </div>
+          </div>
+        </div>
+
+                <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="card-surface p-2.5">
+            <div class="text-base font-black text-indigo-600">118</div>
+            <div class="text-[9px] font-bold text-slate-400 uppercase">SAT Points</div>
+          </div>
+          <div class="card-surface p-2.5">
+            <div class="text-base font-black text-slate-900">3.84</div>
+            <div class="text-[9px] font-bold text-slate-400 uppercase">GPA / IPK</div>
+          </div>
+          <div class="card-surface p-2.5">
+            <div class="text-base font-black text-emerald-600">⭐ 4.95</div>
+            <div class="text-[9px] font-bold text-slate-400 uppercase">Reputation</div>
+          </div>
+        </div>
+
+                <div class="card-surface p-3.5 space-y-2 text-xs">
+          <div class="font-bold text-slate-900 pb-1 border-b border-slate-100">Informasi Akademik</div>
+          <div class="flex justify-between text-slate-600">
+            <span>Email Kampus</span>
+            <span class="font-semibold text-slate-800">marcelinus.wijaya@binus.ac.id</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>Program Studi</span>
+            <span class="font-semibold text-slate-800">Computer Science (Anggrek)</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>Status Mahasiswa</span>
+            <span class="font-bold text-emerald-600">Aktif Semester 6</span>
+          </div>
+        </div>
+
+        <button onclick="navigateTo(1)" class="tactile w-full py-2.5 rounded-xl border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-50 text-center">
+          Keluar dari Akun (Logout)
+        </button>
+      </section>
+
+            <nav id="app-bottom-nav" class="app-bottom-nav">
+        <button onclick="navigateTo(2)" data-screen="2" class="nav-item active tactile">
+          <span class="nav-icon text-lg">⌂</span>
+          <span>Feed</span>
+        </button>
+        <button onclick="navigateTo(6)" data-screen="6" class="nav-item tactile">
+          <span class="nav-icon text-lg">🎓</span>
+          <span>Kating</span>
+        </button>
+
+                <button onclick="navigateTo(4)" class="nav-center-fab tactile">
+          <span>＋</span>
+        </button>
+
+        <button onclick="navigateTo(7)" data-screen="7" class="nav-item tactile">
+          <span class="nav-icon text-lg">📅</span>
+          <span>Jadwal</span>
+        </button>
+        <button onclick="navigateTo(8)" data-screen="8" class="nav-item tactile">
+          <span class="nav-icon text-lg">👤</span>
+          <span>Profil</span>
+        </button>
+      </nav>
+
+            <div id="modal-campus" class="modal-overlay" onclick="closeModal('modal-campus')">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h3 class="text-sm font-extrabold text-slate-900">Pilih Lokasi Kampus BINUS</h3>
+            <button onclick="closeModal('modal-campus')" class="tactile text-slate-400 font-bold">✕</button>
+          </div>
+          <div class="space-y-1.5 pt-3">
+            <button onclick="switchCampus('BINUS Anggrek Campus')" class="tactile w-full p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold text-xs flex justify-between">
+              <span>📍 BINUS Anggrek (Kemanggisan)</span>
+              <span>Aktif ✓</span>
+            </button>
+            <button onclick="switchCampus('BINUS Syahdan Campus')" class="tactile w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium text-xs flex justify-between hover:bg-slate-50">
+              <span>📍 BINUS Syahdan</span>
+            </button>
+            <button onclick="switchCampus('BINUS Kijang Campus')" class="tactile w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium text-xs flex justify-between hover:bg-slate-50">
+              <span>📍 BINUS Kijang</span>
+            </button>
+            <button onclick="switchCampus('BINUS Alam Sutera Campus')" class="tactile w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium text-xs flex justify-between hover:bg-slate-50">
+              <span>📍 BINUS Alam Sutera (Main Campus)</span>
+            </button>
+            <button onclick="switchCampus('BINUS Bekasi Campus')" class="tactile w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium text-xs flex justify-between hover:bg-slate-50">
+              <span>📍 BINUS Bekasi</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+            <div id="modal-qr-pass" class="modal-overlay" onclick="closeQrPass()">
+        <div class="modal-sheet text-center space-y-3" onclick="event.stopPropagation()">
+          <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
+          <h3 class="text-sm font-black text-slate-900">Turnstile Scanner Pass</h3>
+          <p class="text-[11px] text-slate-500">Scan QR Code ini pada turnstile gate Sports Hall Lt. 3</p>
+
+                    <div class="p-5 bg-white border-2 border-dashed border-indigo-200 rounded-2xl w-48 h-48 mx-auto flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
+                        <div class="absolute inset-x-0 h-1 bg-indigo-500 shadow-[0_0_10px_#4F46E5] animate-bounce"></div>
+                        <svg class="w-36 h-36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M10 10H40V40H10V10ZM16 16H34V34H16V16ZM60 10H90V40H60V10ZM66 16H84V34H66V16ZM10 60H40V90H10V60ZM16 66H34V84H16V66ZM60 60H70V70H60V60ZM80 60H90V70H80V60ZM70 70H80V80H70V70ZM60 80H70V90H60V80ZM80 80H90V90H80V80ZM22 22H28V28H22V22ZM72 22H78V28H72V22ZM22 72H28V78H22V72ZM45 15H55V25H45V15ZM45 75H55V85H45V75ZM75 45H85V55H75V45ZM15 45H25V55H15V45ZM45 45H55V55H45V45Z" fill="#0F172A"/>
+            </svg>
+          </div>
+
+          <div class="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 py-1 px-3 rounded-lg inline-block">
+            TICKET: SPORT-ANG-94831
+          </div>
+
+          <button onclick="closeQrPass()" class="btn-primary tactile w-full py-2.5 text-xs shadow-md">
+            Selesai Check-in
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
