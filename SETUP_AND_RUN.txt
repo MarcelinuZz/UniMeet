@@ -1,0 +1,154 @@
+================================================================================
+  UniMeet — Campus-Exclusive Social & Activity Hub (Backend Service)
+  BINUS University Student & Alumni Network (MySQL / MariaDB XAMPP)
+================================================================================
+
+1. WHAT IS THIS PROJECT ABOUT?
+--------------------------------------------------------------------------------
+UniMeet is a verified, campus-exclusive social community platform designed for
+students (specifically starting with BINUS University campuses: Anggrek, Syahdan,
+Kijang, Alam Sutera, and Bekasi).
+
+The platform solves the isolation and scheduling friction of campus life by
+empowering verified Binusians to:
+  * Host and discover real-life campus meetups: Badminton sparring, Valorant /
+    gaming squads, Calculus & UAS exam drills, Flutter hackathons, and cafe hangouts.
+  * Squad RSVP & Roster Management: Real-time slot reservation, automatic waitlist
+    promotion, and digital turnstile scanner QR codes for campus venue access.
+  * Squad Chat & Real-Time Interaction: WebSockets (Socket.IO) rooms for each
+    event, live in-chat polling (e.g. meetup warmup time votes), and automated
+    campus icebreaker prompts.
+  * Kating & Senior Connect: Direct mentoring and coffee chat requests with high-
+    reputation senior students across Computer Science, Cyber Security, and Design.
+  * Flazz Digital Campus Pass & Student Profile: Verified student status, SAT points,
+    GPA, interest role tags, and Free vs. Campus Pro subscription tiers.
+
+
+2. ARCHITECTURE & TECH STACK
+--------------------------------------------------------------------------------
+- Framework: NestJS 12 (TypeScript, ESM / NodeNext architecture)
+- Database: MySQL / MariaDB (Native XAMPP compatible on port 3306) with Prisma ORM 6.4.1
+- Authentication: JWT (Access & Refresh tokens), Passport.js strategies,
+  strict institutional email validation (@binus.ac.id, @binus.edu, @alumni.binus.ac.id),
+  and Binusmaya / Campus Portal SSO integration.
+- Real-Time Communications: NestJS WebSockets (@nestjs/websockets + Socket.IO)
+- Validation & Serialization: class-validator & class-transformer with strict DTO pipes
+- Security: bcrypt password hashing, @nestjs/throttler rate-limiting (100 req/min),
+  CORS enabled, and centralized JSON HTTP exception filter.
+- Documentation: Interactive Swagger OpenAPI 3.0 at `/api/docs`
+- Containerization: Docker & Docker Compose (MariaDB 11 + Multi-stage Node runner)
+
+
+3. STEP-BY-STEP SETUP WITH XAMPP (EASIEST & RECOMMENDED)
+--------------------------------------------------------------------------------
+1. Open XAMPP Control Panel on your Windows PC.
+2. Click "Start" on the **MySQL** module (port 3306 will turn green).
+3. Open your terminal in the backend directory:
+     cd d:\unimeet\UniMeet\unimeet
+
+4. Verify your `.env` connection string (configured by default for XAMPP):
+     DATABASE_URL="mysql://root:@localhost:3306/unimeet_db"
+
+5. Push the schema to MySQL (Prisma will automatically create the `unimeet_db` database and all tables):
+     npx prisma db push
+
+6. Seed initial campus data (students, meetups, squad chat, active polls):
+     npx prisma db seed
+
+7. Start the Development Server:
+     npm run start:dev
+
+8. Open your browser:
+     - API Base URL: http://localhost:3000/api/v1
+     - Interactive Swagger Docs: http://localhost:3000/api/docs
+     - Database Inspector (phpMyAdmin): http://localhost/phpmyadmin
+
+
+4. RUNNING WITH DOCKER COMPOSE (ALTERNATIVE)
+--------------------------------------------------------------------------------
+If you prefer running MariaDB inside Docker without XAMPP:
+1. Ensure Docker Desktop is running.
+2. In `unimeet/`:
+     docker-compose up -d
+3. Run migrations and seeder:
+     npx prisma db push
+     npx prisma db seed
+
+
+5. PRE-CONFIGURED SEED ACCOUNTS & CREDENTIALS
+--------------------------------------------------------------------------------
+All seed accounts use the default password: `BinusPass123!`
+
+1. Marcelinus Wijaya Oey (Student / You)
+   - Email: marcelinus.wijaya@binus.ac.id
+   - NIM: 2602194831 (CS '24 - Anggrek)
+   - Features: SAT Points: 118, GPA: 3.84, Reputation: 4.95
+
+2. Oliver Wiryateja Herlianto (Top Host & Senior Mentor)
+   - Email: oliver.herlianto@binus.ac.id
+   - NIM: 2602195542 (CS '24 - Syahdan/Anggrek)
+   - Host of: "Badminton Double Sparring 🏸"
+
+3. Melvin Goh (Cyber Sec Lead & Gamer)
+   - Email: melvin.goh@binus.ac.id
+   - NIM: 2802436181 (Cyber Sec '24)
+   - Host of: "Valorant 5v5 Custom & Boba 🎯"
+
+4. Samuel Joseph Wijaya (Design Lead & Academic Host)
+   - Email: samuel.wijaya@binus.ac.id
+   - NIM: 2602165842 (IDT '25 - Bekasi)
+   - Host of: "Calculus & UI/UX Peer Review 📐"
+
+5. Jecsen (Mobile Dev / Flutter Jam)
+   - Email: jecsen@binus.ac.id
+   - NIM: 2602189421 (CS '24 - Kijang)
+
+
+6. KEY REST API ENDPOINTS CHEATSHEET
+--------------------------------------------------------------------------------
+Base URL: http://localhost:3000/api/v1
+
+[AUTH]
+- POST /auth/register             : Register student with @binus.ac.id verification
+- POST /auth/login                : Login with email & password, returns JWT
+- POST /auth/sso/binusmaya        : One-tap login via Binusmaya SSO ticket
+- POST /auth/refresh              : Exchange refresh token for fresh access token
+- POST /auth/logout               : Revoke refresh token session (Protected)
+- GET  /auth/me                   : Get authenticated student claims (Protected)
+
+[USERS]
+- GET  /users/profile             : Academic info, SAT points, Flazz pass, stats (Protected)
+- PUT  /users/profile             : Update profile, bio, major, interests (Protected)
+- GET  /users/mentors             : Senior connect list (filter: ?major=cs|cyber|design)
+- POST /users/mentors/:id/coffee-chat : Request coffee chat session with senior (Protected)
+- GET  /users/:id                 : Public student profile
+
+[EVENTS]
+- GET  /events/feed               : Campus activity feed (?category=&campus=&search=&page=)
+- POST /events                    : Host new meetup activity (Protected)
+- GET  /events/:id                : Event detail with host, full squad roster & active poll
+- POST /events/:id/join           : RSVP to event (auto waitlist if full) (Protected)
+- DELETE /events/:id/leave        : Leave squad (auto promotes waitlisted member) (Protected)
+- GET  /events/my-schedules       : Upcoming & past schedules + turnstile QR passes (Protected)
+
+[CHAT & SQUAD WEBSOCKET]
+- GET  /chat/:eventId/messages    : Fetch squad chat history (Protected)
+- POST /chat/:eventId/messages    : Post message via REST fallback (Protected)
+- POST /chat/:eventId/polls       : Create in-chat squad voting poll (Protected)
+- POST /chat/polls/:pollId/vote   : Vote on poll option (Protected)
+- POST /chat/:eventId/icebreaker  : Bot triggers random campus icebreaker (Protected)
+
+WebSocket Gateway (ws://localhost:3000):
+  * Event: `joinRoom`             -> Payload: `{ eventId: "..." }`
+  * Event: `sendMessage`          -> Payload: `{ eventId: "...", senderId: "...", content: "..." }`
+  * Event: `votePoll`             -> Payload: `{ pollId: "...", optionId: "...", userId: "...", eventId: "..." }`
+  * Event: `triggerIcebreaker`    -> Payload: `{ eventId: "...", userId: "..." }`
+  * Emits: `newMessage`, `pollUpdated`
+
+[NOTIFICATIONS, SUBSCRIPTIONS & SPONSORSHIPS]
+- GET  /notifications             : Unread count & notification stream (Protected)
+- PATCH /notifications/read-all   : Mark all alerts as read (Protected)
+- GET  /subscriptions/plans       : Free vs Campus Pro tier details
+- POST /subscriptions/upgrade     : Upgrade to Campus Pro badge ⭐ (Protected)
+- GET  /sponsorships              : Deals from partner cafes, arenas, and boba stalls
+================================================================================

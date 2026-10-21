@@ -1,0 +1,6 @@
+# Root dependencies and logs
+node_modules/
+*.log
+.DS_Store
+.env
+.env.*

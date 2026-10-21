@@ -1,0 +1,267 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum CampusRole {
+  STUDENT
+  ALUMNI
+  FACULTY
+  ADMIN
+}
+
+enum AccountTier {
+  FREE
+  PREMIUM
+}
+
+enum ActivityCategory {
+  SPORTS
+  ACADEMIC
+  GAMING
+  TECH
+  FOOD
+  OUTDOOR
+}
+
+enum EventStatus {
+  OPEN
+  FULL
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ParticipantRole {
+  HOST
+  MEMBER
+  WAITLIST
+}
+
+enum ParticipantStatus {
+  JOINED
+  WAITLISTED
+  CANCELLED
+}
+
+enum NotificationType {
+  EVENT_JOIN
+  CHAT_MESSAGE
+  EVENT_REMINDER
+  POLL_CREATED
+  SYSTEM_ANNOUNCEMENT
+  FRIEND_REQUEST
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model User {
+  id                 String      @id @default(uuid())
+  email              String      @unique
+  password           String
+  name               String
+  nim                String?     @unique
+  major              String?
+  batch              String?     // e.g. "2024" or "CS '24"
+  campus             String?     @default("BINUS Anggrek Campus")
+  bio                String?     @db.Text
+  avatarUrl          String?     @db.Text
+  avatarInitials     String?     @default("UM")
+  isVerified         Boolean     @default(true)
+  isPremium          Boolean     @default(false)
+  tier               AccountTier @default(FREE)
+  satPoints          Int         @default(100)
+  gpa                Decimal?    @default(3.75) @db.Decimal(3, 2)
+  reputation         Float       @default(5.0)
+  interests          Json?       // Stores array of interest tags in MySQL/MariaDB
+  hashedRefreshToken String?     @db.Text
+
+  createdEvents       Event[]            @relation("HostEvents")
+  participations      EventParticipant[]
+  messages            Message[]
+  pollVotes           PollVote[]
+  notifications       Notification[]
+  sentFriendships     Friendship[]       @relation("SentFriendships")
+  receivedFriendships Friendship[]       @relation("ReceivedFriendships")
+  sentDirectMessages  DirectMessage[]    @relation("SentDirectMessages")
+  receivedDirectMsgs  DirectMessage[]    @relation("ReceivedDirectMessages")
+
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([email])
+  @@index([nim])
+}
+
+model Event {
+  id                  String           @id @default(uuid())
+  title               String
+  description         String           @db.Text
+  category            ActivityCategory
+  categoryLabel       String?
+  dateTime            DateTime
+  timeString          String?          // e.g. "18:30 - 20:30 WIB"
+  location            String
+  campus              String           @default("BINUS Anggrek Campus")
+  cost                String           @default("Free")
+  maxParticipants     Int              @default(6)
+  vibe                String?          @default("Casual")
+  campusVerifiedOnly  Boolean          @default(true)
+  status              EventStatus      @default(OPEN)
+  isSponsored         Boolean          @default(false)
+  sponsorName         String?
+
+  hostId              String
+  host                User             @relation("HostEvents", fields: [hostId], references: [id], onDelete: Cascade)
+
+  participants        EventParticipant[]
+  messages            Message[]
+  polls               Poll[]
+
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  @@index([hostId])
+  @@index([dateTime])
+  @@index([category])
+  @@index([campus])
+  @@index([status])
+}
+
+model EventParticipant {
+  id        String            @id @default(uuid())
+  eventId   String
+  userId    String
+  role      ParticipantRole   @default(MEMBER)
+  status    ParticipantStatus @default(JOINED)
+  joinedAt  DateTime          @default(now())
+
+  event     Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId])
+  @@index([eventId])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  eventId   String
+  senderId  String
+  content   String   @db.Text
+  isSystem  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model Poll {
+  id        String       @id @default(uuid())
+  eventId   String
+  question  String
+  isActive  Boolean      @default(true)
+  createdAt DateTime     @default(now())
+
+  event     Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  options   PollOption[]
+
+  @@index([eventId])
+}
+
+model PollOption {
+  id      String     @id @default(uuid())
+  pollId  String
+  text    String
+  poll    Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes   PollVote[]
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id           String     @id @default(uuid())
+  pollOptionId String
+  userId       String
+  createdAt    DateTime   @default(now())
+
+  pollOption   PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollOptionId, userId])
+  @@index([userId])
+  @@index([pollOptionId])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  title     String
+  body      String           @db.Text
+  type      NotificationType @default(SYSTEM_ANNOUNCEMENT)
+  isRead    Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model Sponsorship {
+  id          String   @id @default(uuid())
+  vendorName  String
+  title       String
+  description String   @db.Text
+  dealPromo   String   @db.Text
+  campus      String   @default("BINUS Anggrek Campus")
+  category    String   @default("Food & Cafe")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Friendship {
+  id          String           @id @default(uuid())
+  senderId    String
+  receiverId  String
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  sender      User             @relation("SentFriendships", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User             @relation("ReceivedFriendships", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+}
+
+model DirectMessage {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+
+  sender     User     @relation("SentDirectMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedDirectMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId])
+  @@index([receiverId, senderId])
+  @@index([createdAt])
+}
