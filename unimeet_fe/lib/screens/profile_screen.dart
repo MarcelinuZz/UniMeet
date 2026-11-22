@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../models/user_model.dart';
+import '../models/meetup_model.dart';
 import '../services/auth_service.dart';
 import '../main.dart';
 import '../services/api_service.dart';
@@ -538,7 +539,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final ticket = ev['ticketCode']?.toString() ?? '';
                 final title = ev['title']?.toString() ?? 'Campus Meetup';
                 final location = ev['location']?.toString() ?? 'BINUS Campus';
-                final time = ev['timeString']?.toString() ?? 'Today';
+                final time = MeetupItem.formatRelativeTime(ev['dateTime'], ev['timeString']?.toString());
                 final eventId = ev['id']?.toString() ?? '';
 
                 return Padding(
@@ -715,7 +716,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             else
               ..._pastEvents.map((ev) {
                 final title = ev['title']?.toString() ?? 'Past Event';
-                final time = ev['timeString']?.toString() ?? 'Completed';
+                final time = MeetupItem.formatRelativeTime(ev['dateTime'], ev['timeString']?.toString());
                 final location = ev['location']?.toString() ?? 'BINUS';
 
                 return Padding(

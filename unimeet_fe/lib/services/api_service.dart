@@ -19,7 +19,7 @@ class ApiService {
           : '';
       final res = await http
           .get(Uri.parse('$baseUrl/events/feed$query'))
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         final body = json.decode(res.body);
@@ -45,8 +45,10 @@ class ApiService {
     required String cost,
     required int maxParticipants,
     required String vibe,
+    DateTime? dateTime,
   }) async {
     try {
+      final scheduledDate = dateTime ?? DateTime.now().add(const Duration(hours: 4));
       final res = await http.post(
         Uri.parse('$baseUrl/events'),
         headers: {'Content-Type': 'application/json'},
@@ -55,7 +57,7 @@ class ApiService {
           'title': title,
           'description': description,
           'category': category.toUpperCase(),
-          'dateTime': DateTime.now().add(const Duration(hours: 4)).toIso8601String(),
+          'dateTime': scheduledDate.toIso8601String(),
           'timeString': timeString,
           'location': location,
           'campus': campus,
@@ -95,7 +97,7 @@ class ApiService {
     try {
       final res = await http
           .get(Uri.parse('$baseUrl/events/my-schedules?email=$email'))
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         return json.decode(res.body);
@@ -111,7 +113,7 @@ class ApiService {
       final query = userEmail != null && userEmail.isNotEmpty ? '?email=$userEmail' : '';
       final res = await http
           .get(Uri.parse('$baseUrl/events/$eventId$query'))
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         return json.decode(res.body);
@@ -161,6 +163,9 @@ class ApiService {
 
     final maxSlots = json['maxParticipants'] ?? json['maxSlots'] ?? 6;
     final currentSlots = json['currentSlots'] ?? (participants.isNotEmpty ? participants.length : 1);
+    final rawDt = json['dateTime'];
+    final dt = rawDt != null ? DateTime.tryParse(rawDt.toString())?.toLocal() : null;
+    final dynamicTime = MeetupItem.formatRelativeTime(rawDt, json['timeString']?.toString());
 
     return MeetupItem(
       id: json['id']?.toString() ?? '',
@@ -171,7 +176,8 @@ class ApiService {
       hostMajor: host['batch'] ?? host['major'] ?? "CS '24",
       hostAvatar: host['avatarUrl'] ??
           'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80',
-      time: json['timeString'] ?? 'Today',
+      dateTime: dt,
+      time: dynamicTime,
       location: json['location'] ?? 'BINUS Campus',
       cost: json['cost'] ?? 'Free',
       slotsLeft: (maxSlots - currentSlots) > 0 ? (maxSlots - currentSlots) : 0,
@@ -192,7 +198,7 @@ class ApiService {
       final query = search != null && search.isNotEmpty ? '?search=$search' : '';
       final res = await http
           .get(Uri.parse('$baseUrl/users/directory$query'))
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         final List data = json.decode(res.body);
@@ -211,7 +217,7 @@ class ApiService {
     try {
       final res = await http
           .get(Uri.parse('$baseUrl/users/friends?user=$userEmail'))
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         final List data = json.decode(res.body);
@@ -227,7 +233,7 @@ class ApiService {
     try {
       final res = await http
           .get(Uri.parse('$baseUrl/users/friend-requests?user=$userEmail'))
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         final List data = json.decode(res.body);
@@ -243,7 +249,7 @@ class ApiService {
     try {
       final res = await http
           .get(Uri.parse('$baseUrl/users/friendship-status?user=$userEmail&target=$targetEmail'))
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         return json.decode(res.body);
@@ -289,7 +295,7 @@ class ApiService {
     try {
       final res = await http
           .get(Uri.parse('$baseUrl/chat/direct/messages?user=$userEmail&partner=$partnerEmail'))
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         return json.decode(res.body);
@@ -321,7 +327,7 @@ class ApiService {
           'receiverEmail': receiverEmail,
           'content': content,
         }),
-      );
+      ).timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         return json.decode(res.body);
@@ -339,7 +345,7 @@ class ApiService {
     try {
       final res = await http
           .get(Uri.parse('$baseUrl/chat/$eventId/messages'))
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         final List data = json.decode(res.body);
@@ -365,7 +371,7 @@ class ApiService {
           'senderEmail': senderEmail,
           'content': content,
         }),
-      );
+      ).timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         return json.decode(res.body);

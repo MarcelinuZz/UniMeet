@@ -109,7 +109,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           _description = details['description']?.toString() ?? _description;
           _category = (details['category'] ?? _category).toString().toLowerCase();
           _categoryEmoji = _getEmojiForCategory(_category);
-          _time = details['timeString']?.toString() ?? _time;
+          _time = MeetupItem.formatRelativeTime(details['dateTime'], details['timeString']?.toString());
           _location = details['location']?.toString() ?? _location;
           _campus = details['campus']?.toString() ?? _campus;
           _cost = details['cost']?.toString() ?? _cost;

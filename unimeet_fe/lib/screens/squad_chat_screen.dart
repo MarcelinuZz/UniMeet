@@ -33,6 +33,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
   late List<ChatMessage> _messages;
   Timer? _pollingTimer;
   Map<String, dynamic>? _eventDetails;
+  bool _isPolling = false;
 
   String get _myEmail =>
       AuthService.instance.currentUser?.email.toLowerCase() ?? 'melvin.goh@binus.ac.id';
@@ -64,7 +65,12 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     return widget.categoryEmoji;
   }
 
-  String get _displayTimeString => _eventDetails?['timeString'] ?? 'Segera Diumumkan';
+  String get _displayTimeString {
+    if (_eventDetails != null && (_eventDetails!['dateTime'] != null || _eventDetails!['timeString'] != null)) {
+      return MeetupItem.formatRelativeTime(_eventDetails!['dateTime'], _eventDetails!['timeString']?.toString());
+    }
+    return 'Segera Diumumkan';
+  }
   String get _displayLocation => _eventDetails?['location'] ?? 'BINUS Campus Venue';
   String get _displayCampus => _eventDetails?['campus'] ?? 'BINUS Anggrek Campus';
   String get _displayPassCode =>
@@ -80,7 +86,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     if (widget.eventId.isNotEmpty) {
       _loadEventDetails();
       _loadMessages();
-      _pollingTimer = Timer.periodic(const Duration(milliseconds: 2500), (_) {
+      _pollingTimer = Timer.periodic(const Duration(milliseconds: 3500), (_) {
         _pollMessages();
       });
     }
@@ -116,7 +122,8 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
   }
 
   Future<void> _pollMessages() async {
-    if (widget.eventId.isEmpty) return;
+    if (widget.eventId.isEmpty || _isPolling) return;
+    _isPolling = true;
     try {
       final raw = await ApiService.instance.fetchEventMessages(widget.eventId);
       final myName = AuthService.instance.currentUser?.name ?? '';
@@ -168,6 +175,8 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
       }
     } catch (e) {
       debugPrint('Error polling event messages: $e');
+    } finally {
+      _isPolling = false;
     }
   }
 

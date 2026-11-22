@@ -139,17 +139,47 @@ export class ChatService {
     };
   }
 
+  private readonly userCache = new Map<string, any>();
+
   async resolveUser(identifier: string) {
     if (!identifier) return null;
-    return this.prisma.user.findFirst({
-      where: {
-        OR: [
-          { id: identifier },
-          { email: identifier.toLowerCase() },
-          { nim: identifier },
-        ],
-      },
-    });
+    const trimmed = identifier.trim();
+    const cacheKey = trimmed.toLowerCase();
+    if (this.userCache.has(cacheKey)) {
+      return this.userCache.get(cacheKey);
+    }
+
+    let user: any = null;
+    if (trimmed.includes('@')) {
+      user = await this.prisma.user.findUnique({
+        where: { email: trimmed.toLowerCase() },
+      });
+    } else {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed);
+      if (isUuid) {
+        user = await this.prisma.user.findUnique({
+          where: { id: trimmed },
+        });
+      } else {
+        user = await this.prisma.user.findFirst({
+          where: {
+            OR: [
+              { id: trimmed },
+              { email: trimmed.toLowerCase() },
+              { nim: trimmed },
+            ],
+          },
+        });
+      }
+    }
+
+    if (user) {
+      this.userCache.set(user.id.toLowerCase(), user);
+      this.userCache.set(user.email.toLowerCase(), user);
+      if (user.nim) this.userCache.set(user.nim.toLowerCase(), user);
+    }
+
+    return user;
   }
 
   async getDirectMessages(userIdentifier: string, partnerIdentifier: string) {

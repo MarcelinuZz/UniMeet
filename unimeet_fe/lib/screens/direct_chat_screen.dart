@@ -39,6 +39,7 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
   bool _canChat = false;
   String _lockReason = 'Checking friend relation...';
   Timer? _pollingTimer;
+  bool _isPolling = false;
 
   String get _myEmail =>
       AuthService.instance.currentUser?.email.toLowerCase() ?? 'melvin.goh@binus.ac.id';
@@ -47,8 +48,8 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
   void initState() {
     super.initState();
     _loadMessages();
-    // Poll messages every 2.5 seconds to receive real incoming messages
-    _pollingTimer = Timer.periodic(const Duration(milliseconds: 2500), (_) {
+    // Poll messages every 3.5 seconds to receive real incoming messages
+    _pollingTimer = Timer.periodic(const Duration(milliseconds: 3500), (_) {
       _pollMessages();
     });
   }
@@ -71,6 +72,8 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
   }
 
   Future<void> _pollMessages() async {
+    if (_isPolling) return;
+    _isPolling = true;
     try {
       final res = await ApiService.instance.fetchDirectMessages(
         _myEmail,
@@ -116,6 +119,8 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
       }
     } catch (e) {
       debugPrint('Error polling direct messages: $e');
+    } finally {
+      _isPolling = false;
     }
   }
 

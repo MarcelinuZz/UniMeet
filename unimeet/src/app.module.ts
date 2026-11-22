@@ -22,7 +22,7 @@ import { AppService } from './app.service.js';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 100,
+        limit: 5000,
       },
     ]),
     PrismaModule,

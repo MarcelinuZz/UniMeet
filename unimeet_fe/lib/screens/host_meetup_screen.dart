@@ -22,6 +22,11 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
   bool _campusOnly = true;
   bool _isPublishing = false;
 
+  DateTime _selectedDate = DateTime.now();
+  TimeOfDay _selectedStartTime = const TimeOfDay(hour: 16, minute: 0);
+  int _durationMinutes = 120;
+  final List<int> _durationPresets = [30, 60, 90, 120, 180, 240];
+
   final List<Map<String, dynamic>> _categories = [
     {'name': 'Sports', 'icon': Icons.sports_soccer, 'color': AppColors.campusBlue},
     {'name': 'Academic', 'icon': Icons.menu_book, 'color': AppColors.primary},
@@ -57,6 +62,110 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
     });
   }
 
+  String _formatDate(DateTime dt) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(dt.year, dt.month, dt.day);
+    final diff = target.difference(today).inDays;
+    final base = '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
+    if (diff == 0) return 'Today, $base';
+    if (diff == 1) return 'Tomorrow, $base';
+    return base;
+  }
+
+  String _getDateSubtitle(DateTime dt, TimeOfDay time) {
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    final dayName = days[dt.weekday - 1];
+    String period = 'Morning';
+    if (time.hour >= 12 && time.hour < 15) {
+      period = 'Afternoon';
+    } else if (time.hour >= 15 && time.hour < 18) {
+      period = 'Late Afternoon';
+    } else if (time.hour >= 18) {
+      period = 'Evening';
+    }
+    return '$dayName $period';
+  }
+
+  String _formatTimeOfDay(TimeOfDay t) {
+    final h = t.hour.toString().padLeft(2, '0');
+    final m = t.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  TimeOfDay _calculateEndTime(TimeOfDay start, int durationMins) {
+    final startTotal = start.hour * 60 + start.minute;
+    final endTotal = (startTotal + durationMins) % (24 * 60);
+    return TimeOfDay(hour: endTotal ~/ 60, minute: endTotal % 60);
+  }
+
+  String _formatDurationLabel(int mins) {
+    if (mins < 60) return '$mins Mins meetup';
+    final hrs = mins ~/ 60;
+    final rem = mins % 60;
+    if (rem == 0) {
+      return '$hrs ${hrs == 1 ? 'Hour' : 'Hours'} meetup';
+    }
+    return '$hrs.5 Hours meetup';
+  }
+
+  String _durationChipLabel(int mins) {
+    if (mins < 60) return '${mins}m';
+    final hrs = mins ~/ 60;
+    final rem = mins % 60;
+    if (rem == 0) return '${hrs}h';
+    return '$hrs.5h';
+  }
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final initial = _selectedDate.isBefore(now) ? now : _selectedDate;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: now.subtract(const Duration(days: 1)),
+      lastDate: now.add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: AppColors.primary,
+                ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedStartTime,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: AppColors.primary,
+                ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedStartTime = picked;
+      });
+    }
+  }
+
   void _handlePublish() async {
     setState(() {
       _isPublishing = true;
@@ -65,6 +174,16 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
     final hostEmail =
         AuthService.instance.currentUser?.email.toLowerCase() ?? 'melvin.goh@binus.ac.id';
 
+    final eventDateTime = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      _selectedStartTime.hour,
+      _selectedStartTime.minute,
+    );
+    final endTime = _calculateEndTime(_selectedStartTime, _durationMinutes);
+    final timeString = '${_formatTimeOfDay(_selectedStartTime)} - ${_formatTimeOfDay(endTime)} WIB';
+
     await ApiService.instance.createEvent(
       hostEmail: hostEmail,
       title: _titleController.text.trim().isEmpty ? 'Campus Meetup' : _titleController.text.trim(),
@@ -72,7 +191,8 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
           ? 'Join us for this campus meetup! Let\'s connect and collaborate.'
           : _descController.text.trim(),
       category: _selectedCategory,
-      timeString: 'Today • 18:30 WIB',
+      dateTime: eventDateTime,
+      timeString: timeString,
       location: _locationController.text.trim().isEmpty
           ? 'BINUS Anggrek Campus'
           : _locationController.text.trim(),
@@ -447,15 +567,28 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.calendar_month, size: 18, color: AppColors.primary),
-                      const SizedBox(width: 6),
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_month, size: 18, color: AppColors.primary),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Schedule & Duration',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
                       Text(
-                        'Schedule & Duration',
+                        'Tap cards to change',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
@@ -464,90 +597,183 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkSurfaceContainerLow : AppColors.surfaceContainerLow,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _pickDate,
                             borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: isDark ? AppColors.darkSurfaceContainerLow : AppColors.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppColors.primary.withOpacity(0.25),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.event, size: 14, color: AppColors.primary),
-                                  const SizedBox(width: 4),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.event, size: 14, color: AppColors.primary),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            'Date',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 11,
+                                              color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const Icon(Icons.edit_calendar, size: 13, color: AppColors.primary),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    'Date',
+                                    _formatDate(_selectedDate),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                    ),
+                                  ),
+                                  Text(
+                                    _getDateSubtitle(_selectedDate, _selectedStartTime),
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 11,
-                                      color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Oct 25, 2024',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
-                                ),
-                              ),
-                              Text(
-                                'Friday Afternoon',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkSurfaceContainerLow : AppColors.surfaceContainerLow,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _pickTime,
                             borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: isDark ? AppColors.darkSurfaceContainerLow : AppColors.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppColors.statusOpenEmerald.withOpacity(0.25),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.schedule, size: 14, color: AppColors.statusOpenEmerald),
-                                  const SizedBox(width: 4),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.schedule, size: 14, color: AppColors.statusOpenEmerald),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            'Start Time',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 11,
+                                              color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const Icon(Icons.access_time, size: 13, color: AppColors.statusOpenEmerald),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    'Time Window',
+                                    '${_formatTimeOfDay(_selectedStartTime)} - ${_formatTimeOfDay(_calculateEndTime(_selectedStartTime, _durationMinutes))}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatDurationLabel(_durationMinutes),
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 11,
-                                      color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.statusOpenEmerald,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '16:00 - 18:00',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Duration Presets
+                  Row(
+                    children: [
+                      Text(
+                        'Duration:',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: _durationPresets.map((mins) {
+                              final isSel = _durationMinutes == mins;
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 6),
+                                child: ChoiceChip(
+                                  label: Text(
+                                    _durationChipLabel(mins),
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                                      color: isSel
+                                          ? Colors.white
+                                          : (isDark ? AppColors.darkOnSurface : AppColors.onSurface),
+                                    ),
+                                  ),
+                                  selected: isSel,
+                                  selectedColor: AppColors.primary,
+                                  backgroundColor: isDark
+                                      ? AppColors.darkSurfaceContainerLow
+                                      : AppColors.surfaceContainerLow,
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
+                                  onSelected: (val) {
+                                    if (val) {
+                                      setState(() {
+                                        _durationMinutes = mins;
+                                      });
+                                    }
+                                  },
                                 ),
-                              ),
-                              Text(
-                                '2 Hours meetup',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.statusOpenEmerald,
-                                ),
-                              ),
-                            ],
+                              );
+                            }).toList(),
                           ),
                         ),
                       ),

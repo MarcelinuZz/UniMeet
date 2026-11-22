@@ -51,44 +51,36 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
         AuthService.instance.currentUser?.email.toLowerCase() ?? 'melvin.goh@binus.ac.id';
 
     try {
-      // 1. Fetch real events from database
-      final events = await ApiService.instance.fetchEvents(currentUserEmail: currentEmail);
+      // 1. Fetch real events, friends, requests and directory concurrently
+      final results = await Future.wait([
+        ApiService.instance.fetchEvents(currentUserEmail: currentEmail),
+        ApiService.instance.fetchFriends(currentEmail),
+        ApiService.instance.fetchFriendRequests(currentEmail),
+        ApiService.instance.fetchDirectory(),
+      ]);
 
-      final List<_SquadGroup> mappedSquads = [];
-      for (final e in events) {
-        String lastMsg = 'Squad group chat ready for ${e.title} 🚀';
-        String lastSender = e.hostName;
-        int unread = 0;
-        try {
-          final msgs = await ApiService.instance.fetchEventMessages(e.id);
-          if (msgs.isNotEmpty) {
-            final last = msgs.last;
-            lastMsg = last['content']?.toString() ?? lastMsg;
-            lastSender = last['senderName']?.toString() ?? lastSender;
-          }
-        } catch (_) {}
+      final events = results[0] as List<MeetupItem>;
+      final friends = results[1] as List<Map<String, dynamic>>;
+      final requests = results[2] as List<Map<String, dynamic>>;
+      final directory = results[3] as List<Map<String, dynamic>>;
 
-        mappedSquads.add(_SquadGroup(
+      final mappedSquads = events.map((e) {
+        return _SquadGroup(
           id: e.id,
           title: e.title,
           categoryEmoji: e.categoryEmoji,
           categoryTag: e.category,
           location: e.location,
           memberCount: '${e.confirmedCount}/${e.totalSlots}',
-          lastMessage: lastMsg,
-          lastSender: lastSender,
+          lastMessage: 'Squad group chat ready for ${e.title} 🚀',
+          lastSender: e.hostName,
           time: e.time,
-          unreadCount: unread,
+          unreadCount: 0,
           avatars: [e.hostAvatar],
           messages: [],
           isJoined: e.isJoined,
-        ));
-      }
-
-      // 2. Fetch real friends, requests and directory
-      final friends = await ApiService.instance.fetchFriends(currentEmail);
-      final requests = await ApiService.instance.fetchFriendRequests(currentEmail);
-      final directory = await ApiService.instance.fetchDirectory();
+        );
+      }).toList();
 
       final friendEmails =
           friends.map((f) => (f['email'] ?? '').toString().toLowerCase()).toSet();
