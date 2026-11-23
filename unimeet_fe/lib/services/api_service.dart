@@ -93,6 +93,21 @@ class ApiService {
     }
   }
 
+  Future<bool> deleteEvent(String eventId, String userEmail) async {
+    try {
+      final res = await http.delete(
+        Uri.parse('$baseUrl/events/$eventId?email=${Uri.encodeComponent(userEmail)}'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'userEmail': userEmail}),
+      ).timeout(const Duration(seconds: 15));
+
+      return res.statusCode == 200 || res.statusCode == 204;
+    } catch (e) {
+      debugPrint('ApiService deleteEvent error: $e');
+      return false;
+    }
+  }
+
   Future<Map<String, dynamic>> fetchMySchedules(String email) async {
     try {
       final res = await http
@@ -124,6 +139,65 @@ class ApiService {
     return null;
   }
 
+  Future<Map<String, dynamic>?> fetchProfile(String emailOrId) async {
+    try {
+      final res = await http
+          .get(Uri.parse('$baseUrl/users/profile?email=${Uri.encodeComponent(emailOrId)}'))
+          .timeout(const Duration(seconds: 15));
+
+      if (res.statusCode == 200) {
+        return json.decode(res.body);
+      }
+    } catch (e) {
+      debugPrint('ApiService fetchProfile error: $e');
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> updateProfile({
+    required String email,
+    String? userId,
+    String? name,
+    String? campus,
+    String? major,
+    String? batch,
+    String? avatarUrl,
+    String? bio,
+    List<String>? interests,
+  }) async {
+    try {
+      final body = <String, dynamic>{
+        'email': email,
+      };
+      if (userId != null) body['userId'] = userId;
+      if (name != null) body['name'] = name;
+      if (campus != null) body['campus'] = campus;
+      if (major != null) body['major'] = major;
+      if (batch != null) body['batch'] = batch;
+      if (avatarUrl != null) body['avatarUrl'] = avatarUrl;
+      if (bio != null) body['bio'] = bio;
+      if (interests != null) body['interests'] = interests;
+
+      final res = await http
+          .put(
+            Uri.parse('$baseUrl/users/profile'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode(body),
+          )
+          .timeout(const Duration(seconds: 30));
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        return json.decode(res.body);
+      } else {
+        debugPrint('ApiService updateProfile failed: ${res.statusCode} - ${res.body}');
+        throw Exception('Server returned ${res.statusCode}: ${res.body}');
+      }
+    } catch (e) {
+      debugPrint('ApiService updateProfile error: $e');
+      rethrow;
+    }
+  }
+
   MeetupItem _mapJsonToMeetup(Map<String, dynamic> json, [String? currentEmail]) {
     final host = json['host'] ?? {};
     final category = (json['category'] ?? 'SPORTS').toString().toLowerCase();
@@ -141,6 +215,15 @@ class ApiService {
         return r['user']['avatarInitials'].toString();
       }
       return 'UM';
+    }).toList();
+    final avatars = roster.map<String?>((r) {
+      if (r is Map && r['avatarUrl'] != null && r['avatarUrl'].toString().isNotEmpty) {
+        return r['avatarUrl'].toString();
+      }
+      if (r is Map && r['user'] is Map && r['user']['avatarUrl'] != null && r['user']['avatarUrl'].toString().isNotEmpty) {
+        return r['user']['avatarUrl'].toString();
+      }
+      return null;
     }).toList();
 
     bool isJoined = json['isJoined'] == true;
@@ -174,8 +257,9 @@ class ApiService {
       categoryEmoji: emoji,
       hostName: host['name'] ?? 'Binusian Host',
       hostMajor: host['batch'] ?? host['major'] ?? "CS '24",
-      hostAvatar: host['avatarUrl'] ??
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80',
+      hostAvatar: (host['avatarUrl'] != null && host['avatarUrl'].toString().isNotEmpty)
+          ? host['avatarUrl'].toString()
+          : '',
       dateTime: dt,
       time: dynamicTime,
       location: json['location'] ?? 'BINUS Campus',
@@ -185,6 +269,7 @@ class ApiService {
       confirmedCount: currentSlots,
       tags: ['#${category.toUpperCase()}', '#BINUSAnggrek', '#UniMeetVerified'],
       attendeeInitials: initials.isNotEmpty ? initials : ['UM'],
+      attendeeAvatars: avatars,
       description: json['description'] ?? '',
       isJoined: isJoined,
     );

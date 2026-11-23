@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../models/user_model.dart';
 import '../models/meetup_model.dart';
 import 'squad_chat_screen.dart';
 import 'direct_chat_screen.dart';
@@ -101,6 +102,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
           batch: d['batch']?.toString() ?? "CS '24",
           campus: d['campus']?.toString() ?? 'BINUS Anggrek Campus',
           avatarInitials: d['avatarInitials']?.toString() ?? 'UM',
+          avatarUrl: d['avatarUrl']?.toString(),
           mutualInterests: interests,
           isOnline: true,
           isFriend: isFriend,
@@ -118,6 +120,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
           batch: sender['batch']?.toString() ?? '',
           campus: sender['campus']?.toString() ?? 'BINUS Anggrek Campus',
           avatarInitials: sender['avatarInitials']?.toString() ?? 'UM',
+          avatarUrl: sender['avatarUrl']?.toString(),
           mutualInterests: [],
           mutualText: 'Sent you a campus friend request',
           timeAgo: 'Just now',
@@ -168,6 +171,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
     required String initials,
     required String nim,
     required String campus,
+    String? avatarUrl,
     bool isOnline = true,
   }) {
     Navigator.of(context).push(
@@ -179,6 +183,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
           friendInitials: initials,
           friendNim: nim,
           friendCampus: campus,
+          friendAvatarUrl: avatarUrl,
           isOnline: isOnline,
         ),
       ),
@@ -262,6 +267,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                   initials: req.avatarInitials,
                   nim: req.nim,
                   campus: req.campus,
+                  avatarUrl: req.avatarUrl,
                   isOnline: true,
                 );
               },
@@ -775,6 +781,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
           initials: friend.avatarInitials,
           nim: friend.nim,
           campus: friend.campus,
+          avatarUrl: friend.avatarUrl,
           isOnline: friend.isOnline,
         ),
         child: Padding(
@@ -795,16 +802,24 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(14),
+                      image: UserModel.getAvatarImageProvider(friend.avatarUrl) != null
+                          ? DecorationImage(
+                              image: UserModel.getAvatarImageProvider(friend.avatarUrl)!,
+                              fit: BoxFit.cover,
+                            )
+                          : null,
                     ),
                     alignment: Alignment.center,
-                    child: Text(
-                      friend.avatarInitials,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: UserModel.getAvatarImageProvider(friend.avatarUrl) == null
+                        ? Text(
+                            friend.avatarInitials,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          )
+                        : null,
                   ),
                   if (friend.isOnline)
                     Positioned(
@@ -1171,16 +1186,24 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(14),
+                  image: UserModel.getAvatarImageProvider(req.avatarUrl) != null
+                      ? DecorationImage(
+                          image: UserModel.getAvatarImageProvider(req.avatarUrl)!,
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  req.avatarInitials,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
+                child: UserModel.getAvatarImageProvider(req.avatarUrl) == null
+                    ? Text(
+                        req.avatarInitials,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      )
+                    : null,
               ),
               const SizedBox(width: 12),
               // Student Info
@@ -1349,16 +1372,24 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(14),
+                  image: UserModel.getAvatarImageProvider(student.avatarUrl) != null
+                      ? DecorationImage(
+                          image: UserModel.getAvatarImageProvider(student.avatarUrl)!,
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  student.avatarInitials,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
+                child: UserModel.getAvatarImageProvider(student.avatarUrl) == null
+                    ? Text(
+                        student.avatarInitials,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      )
+                    : null,
               ),
               if (student.isOnline)
                 Positioned(
@@ -1393,6 +1424,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                         initials: student.avatarInitials,
                         nim: student.nim,
                         campus: student.campus,
+                        avatarUrl: student.avatarUrl,
                         isOnline: student.isOnline,
                       )
                   : null,
@@ -1457,6 +1489,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                   initials: student.avatarInitials,
                   nim: student.nim,
                   campus: student.campus,
+                  avatarUrl: student.avatarUrl,
                   isOnline: student.isOnline,
                 );
               },
@@ -1568,6 +1601,7 @@ class _CampusStudent {
   final String batch;
   final String campus;
   final String avatarInitials;
+  final String? avatarUrl;
   final List<String> mutualInterests;
   final bool isOnline;
   bool isFriend;
@@ -1582,6 +1616,7 @@ class _CampusStudent {
     required this.batch,
     required this.campus,
     required this.avatarInitials,
+    this.avatarUrl,
     required this.mutualInterests,
     this.isOnline = false,
     this.isFriend = false,
@@ -1597,6 +1632,7 @@ class _FriendRequest {
   final String batch;
   final String campus;
   final String avatarInitials;
+  final String? avatarUrl;
   final List<String> mutualInterests;
   final String mutualText;
   final String timeAgo;
@@ -1610,6 +1646,7 @@ class _FriendRequest {
     required this.batch,
     required this.campus,
     required this.avatarInitials,
+    this.avatarUrl,
     required this.mutualInterests,
     required this.mutualText,
     required this.timeAgo,

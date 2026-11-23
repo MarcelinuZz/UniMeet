@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
+import 'api_service.dart';
 
 class AuthService {
   static final AuthService instance = AuthService._internal();
@@ -124,6 +125,7 @@ class AuthService {
             batch: backendUser['batch'] ?? (isMelvin ? "Cyber Sec '24" : '2024'),
             campus: backendUser['campus'] ?? activeCampus,
             avatarInitials: backendUser['avatarInitials'] ?? initials,
+            avatarUrl: backendUser['avatarUrl']?.toString(),
             isVerified: backendUser['isVerified'] ?? true,
           );
         } else {
@@ -176,6 +178,30 @@ class AuthService {
     await _setStorageString('$_userStorePrefix${updated.email}', updated.toJson());
     await _setStorageString(_activeUserKey, updated.toJson());
     currentUserNotifier.value = updated;
+  }
+
+  Future<void> syncProfileFromBackend() async {
+    final current = currentUser;
+    if (current == null) return;
+    try {
+      final res = await ApiService.instance.fetchProfile(current.email);
+      if (res != null) {
+        final serverAvatar = res['avatarUrl']?.toString();
+        final effectiveAvatar = (serverAvatar != null && serverAvatar.isNotEmpty)
+            ? serverAvatar
+            : current.avatarUrl;
+
+        final updated = current.copyWith(
+          name: res['name']?.toString() ?? current.name,
+          campus: res['campus']?.toString() ?? current.campus,
+          major: res['major']?.toString() ?? current.major,
+          batch: res['batch']?.toString() ?? current.batch,
+          avatarUrl: effectiveAvatar,
+          avatarInitials: res['avatarInitials']?.toString() ?? current.avatarInitials,
+        );
+        await updateActiveUser(updated);
+      }
+    } catch (_) {}
   }
 
   Future<void> logout() async {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../models/user_model.dart';
 import '../models/meetup_model.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
@@ -144,11 +145,15 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
             ? '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}'
             : 'Just now';
 
+        final avatar = (isMe
+            ? (AuthService.instance.currentUser?.avatarUrl ?? '')
+            : (m['senderAvatarUrl'] ?? m['avatarUrl'] ?? m['senderAvatar'] ?? '')).toString();
+
         return ChatMessage(
           id: m['id']?.toString() ?? UniqueKey().toString(),
           senderName: isMe ? 'You' : (m['senderName'] ?? 'Binusian'),
           senderMajor: m['senderMajor'] ?? '',
-          avatarUrl: '',
+          avatarUrl: avatar,
           text: m['content']?.toString() ?? '',
           time: timeStr,
           isSelf: isMe,
@@ -205,7 +210,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     final optimistic = ChatMessage(
       id: 'temp-${DateTime.now().millisecondsSinceEpoch}',
       senderName: 'You',
-      avatarUrl: '',
+      avatarUrl: AuthService.instance.currentUser?.avatarUrl ?? '',
       text: text,
       time: timeStr,
       isSelf: true,
@@ -881,10 +886,8 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
               CircleAvatar(
                 radius: 17,
                 backgroundColor: AppColors.primaryContainer,
-                backgroundImage: (msg.avatarUrl.isNotEmpty && msg.avatarUrl.startsWith('http'))
-                    ? NetworkImage(msg.avatarUrl)
-                    : null,
-                child: (msg.avatarUrl.isEmpty || !msg.avatarUrl.startsWith('http'))
+                backgroundImage: UserModel.getAvatarImageProvider(msg.avatarUrl),
+                child: UserModel.getAvatarImageProvider(msg.avatarUrl) == null
                     ? Text(
                         msg.senderName.isNotEmpty ? msg.senderName[0].toUpperCase() : 'U',
                         style: GoogleFonts.plusJakartaSans(

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../models/user_model.dart';
 import '../models/meetup_model.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
@@ -13,6 +14,7 @@ class DirectChatScreen extends StatefulWidget {
   final String friendInitials;
   final String friendNim;
   final String friendCampus;
+  final String? friendAvatarUrl;
   final bool isOnline;
 
   const DirectChatScreen({
@@ -23,6 +25,7 @@ class DirectChatScreen extends StatefulWidget {
     required this.friendInitials,
     required this.friendNim,
     required this.friendCampus,
+    this.friendAvatarUrl,
     this.isOnline = true,
   });
 
@@ -95,11 +98,15 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
             ? '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}'
             : 'Just now';
 
+        final avatar = (isMe
+            ? (AuthService.instance.currentUser?.avatarUrl ?? '')
+            : (m['senderAvatarUrl'] ?? m['avatarUrl'] ?? widget.friendAvatarUrl ?? '')).toString();
+
         return ChatMessage(
           id: m['id']?.toString() ?? UniqueKey().toString(),
           senderName: isMe ? 'You' : (m['senderName'] ?? widget.friendName),
           senderMajor: isMe ? '' : widget.friendMajor,
-          avatarUrl: '',
+          avatarUrl: avatar,
           text: m['content']?.toString() ?? '',
           time: timeStr,
           isSelf: isMe,
@@ -149,7 +156,7 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
     final optimisticMsg = ChatMessage(
       id: 'temp-${DateTime.now().millisecondsSinceEpoch}',
       senderName: 'You',
-      avatarUrl: '',
+      avatarUrl: AuthService.instance.currentUser?.avatarUrl ?? '',
       text: text,
       time: timeStr,
       isSelf: true,
@@ -211,16 +218,24 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
                     colors: [AppColors.primaryContainer, AppColors.campusBlue],
                   ),
                   borderRadius: BorderRadius.circular(20),
+                  image: UserModel.getAvatarImageProvider(widget.friendAvatarUrl) != null
+                      ? DecorationImage(
+                          image: UserModel.getAvatarImageProvider(widget.friendAvatarUrl)!,
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  widget.friendInitials,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
+                child: UserModel.getAvatarImageProvider(widget.friendAvatarUrl) == null
+                    ? Text(
+                        widget.friendInitials,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      )
+                    : null,
               ),
               const SizedBox(height: 14),
               Text(
@@ -331,16 +346,24 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
                           colors: [AppColors.primaryContainer, AppColors.campusBlue],
                         ),
                         borderRadius: BorderRadius.circular(12),
+                        image: UserModel.getAvatarImageProvider(widget.friendAvatarUrl) != null
+                            ? DecorationImage(
+                                image: UserModel.getAvatarImageProvider(widget.friendAvatarUrl)!,
+                                fit: BoxFit.cover,
+                              )
+                            : null,
                       ),
                       alignment: Alignment.center,
-                      child: Text(
-                        widget.friendInitials,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: UserModel.getAvatarImageProvider(widget.friendAvatarUrl) == null
+                          ? Text(
+                              widget.friendInitials,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            )
+                          : null,
                     ),
                     if (_canChat)
                       Positioned(
@@ -552,21 +575,29 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
               width: 28,
               height: 28,
               margin: const EdgeInsets.only(right: 8, bottom: 2),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
                   colors: [AppColors.primaryContainer, AppColors.campusBlue],
                 ),
                 shape: BoxShape.circle,
+                image: UserModel.getAvatarImageProvider(msg.avatarUrl.isNotEmpty ? msg.avatarUrl : widget.friendAvatarUrl) != null
+                    ? DecorationImage(
+                        image: UserModel.getAvatarImageProvider(msg.avatarUrl.isNotEmpty ? msg.avatarUrl : widget.friendAvatarUrl)!,
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
               alignment: Alignment.center,
-              child: Text(
-                widget.friendInitials,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
+              child: UserModel.getAvatarImageProvider(msg.avatarUrl.isNotEmpty ? msg.avatarUrl : widget.friendAvatarUrl) == null
+                  ? Text(
+                      widget.friendInitials,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    )
+                  : null,
             ),
           ],
           Flexible(

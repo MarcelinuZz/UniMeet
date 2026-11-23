@@ -2,6 +2,16 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class UpdateProfileDto {
+  @ApiProperty({ example: 'melvin.goh@binus.ac.id', required: false })
+  @IsString()
+  @IsOptional()
+  email?: string;
+
+  @ApiProperty({ example: 'usr_melvin', required: false })
+  @IsString()
+  @IsOptional()
+  userId?: string;
+
   @ApiProperty({ example: 'Marcelinus Wijaya Oey', required: false })
   @IsString()
   @IsOptional()

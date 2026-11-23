@@ -42,6 +42,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   late String _hostMajor;
   late String _hostRating;
   late int _hostedCount;
+  String? _hostAvatar;
   bool _isHost = false;
   List<Map<String, dynamic>> _roster = [];
 
@@ -67,6 +68,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     _hostMajor = widget.meetup.hostMajor;
     _hostRating = '4.9';
     _hostedCount = 1;
+    _hostAvatar = widget.meetup.hostAvatar;
+
+    final myEmail = AuthService.instance.currentUser?.email.toLowerCase() ?? '';
+    final myName = AuthService.instance.currentUser?.name.toLowerCase() ?? '';
+    if ((myName.isNotEmpty && _hostName.toLowerCase() == myName) ||
+        (myEmail.isNotEmpty && _hostName.toLowerCase().contains(myEmail.split('@').first))) {
+      _isHost = true;
+    }
 
     _loadRealEventDetails();
   }
@@ -89,6 +98,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               'role': (r['role'] ?? 'MEMBER').toString().toUpperCase(),
               'major': r['major']?.toString() ?? 'Student',
               'avatar': r['avatar']?.toString() ?? 'UM',
+              'avatarUrl': r['avatarUrl']?.toString() ??
+                  (r['user'] is Map ? r['user']['avatarUrl']?.toString() : null),
               'isCurrentUser': r['isCurrentUser'] == true ||
                   (r['name']?.toString().toLowerCase() ==
                       AuthService.instance.currentUser?.name.toLowerCase()),
@@ -101,6 +112,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         final curP = details['currentSlots'] ?? parsedRoster.length;
         final isJoinedServer = details['isJoined'] == true;
         final isHostServer = details['isHost'] == true ||
+            (host['email']?.toString().toLowerCase() == _myEmail) ||
+            (host['id']?.toString() == AuthService.instance.currentUser?.id) ||
             (host['name']?.toString().toLowerCase() ==
                 AuthService.instance.currentUser?.name.toLowerCase());
 
@@ -117,6 +130,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           _currentSlots = curP is int ? curP : int.tryParse(curP.toString()) ?? 1;
           _hostName = host['name']?.toString() ?? _hostName;
           _hostMajor = host['major']?.toString() ?? host['batch']?.toString() ?? _hostMajor;
+          _hostAvatar = host['avatarUrl']?.toString() ?? _hostAvatar;
           _hostRating = host['rating']?.toString() ?? '4.9';
           _hostedCount = host['hostedCount'] is int
               ? host['hostedCount']
@@ -192,6 +206,98 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         ),
       ),
     );
+  }
+
+  void _confirmDeleteMeetup() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: AppColors.statusTrendingCoral, size: 26),
+            const SizedBox(width: 8),
+            Text(
+              'Delete Meetup?',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to delete "$_title"? This meetup will be permanently removed from the campus feed and all member schedules.',
+          style: GoogleFonts.plusJakartaSans(fontSize: 13, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: AppColors.outline),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.statusTrendingCoral,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              _deleteMeetup();
+            },
+            child: Text(
+              'Delete Meetup',
+              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteMeetup() async {
+    setState(() => _isLoading = true);
+    final userEmail = AuthService.instance.currentUser?.email.toLowerCase() ?? _myEmail;
+    final success = await ApiService.instance.deleteEvent(widget.meetup.id, userEmail);
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Meetup successfully deleted.',
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.statusOpenEmerald,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      Navigator.of(context).pop(true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Failed to delete meetup. Only the host can delete this meetup.',
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+          ),
+          backgroundColor: AppColors.statusTrendingCoral,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _showJoinedCelebrationModal() {
@@ -328,6 +434,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w700),
         ),
         actions: [
+          if (_isHost)
+            IconButton(
+              icon: const Icon(Icons.delete_outline_rounded, color: AppColors.statusTrendingCoral),
+              tooltip: 'Delete Meetup',
+              onPressed: _confirmDeleteMeetup,
+            ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             tooltip: 'Refresh details',
@@ -552,16 +664,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                       end: Alignment.bottomRight,
                                     ),
                                     borderRadius: BorderRadius.circular(14),
+                                    image: UserModel.getAvatarImageProvider(_hostAvatar) != null
+                                        ? DecorationImage(
+                                            image: UserModel.getAvatarImageProvider(_hostAvatar)!,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : null,
                                   ),
                                   alignment: Alignment.center,
-                                  child: Text(
-                                    UserModel.extractInitials(_hostName),
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                                  child: UserModel.getAvatarImageProvider(_hostAvatar) == null
+                                      ? Text(
+                                          UserModel.extractInitials(_hostName),
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : null,
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
@@ -816,10 +936,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                             CircleAvatar(
                                               radius: 10,
                                               backgroundColor: isPUserHost ? AppColors.primary : AppColors.outline,
-                                              child: Text(
-                                                pAvatar,
-                                                style: const TextStyle(fontSize: 8, color: Colors.white, fontWeight: FontWeight.w800),
-                                              ),
+                                              backgroundImage: UserModel.getAvatarImageProvider(p['avatarUrl']?.toString()),
+                                              child: UserModel.getAvatarImageProvider(p['avatarUrl']?.toString()) == null
+                                                  ? Text(
+                                                      pAvatar,
+                                                      style: const TextStyle(
+                                                          fontSize: 8,
+                                                          color: Colors.white,
+                                                          fontWeight: FontWeight.w800),
+                                                    )
+                                                  : null,
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
@@ -1076,6 +1202,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               ],
                             ),
                             const Spacer(),
+                            if (_isHost) ...[
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppColors.statusTrendingCoral,
+                                  side: const BorderSide(color: AppColors.statusTrendingCoral, width: 1.2),
+                                  backgroundColor: AppColors.statusTrendingCoral.withOpacity(0.08),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                ),
+                                onPressed: _confirmDeleteMeetup,
+                                icon: const Icon(Icons.delete_outline_rounded, size: 16),
+                                label: Text(
+                                  'Delete Meet',
+                                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: _isHost

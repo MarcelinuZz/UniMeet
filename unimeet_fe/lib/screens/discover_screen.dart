@@ -6,7 +6,6 @@ import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
 import 'event_details_screen.dart';
-import 'host_meetup_screen.dart';
 
 class DiscoverFeedScreen extends StatefulWidget {
   final VoidCallback? onOpenProfile;
@@ -133,8 +132,8 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
     }
   }
 
-  void _openEventDetails(MeetupItem item) {
-    Navigator.of(context).push(
+  void _openEventDetails(MeetupItem item) async {
+    final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => EventDetailsScreen(
           meetup: item,
@@ -143,6 +142,9 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
         ),
       ),
     );
+    if (result == true) {
+      _loadEventsFromBackend();
+    }
   }
 
   @override
@@ -269,14 +271,17 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                             CircleAvatar(
                               radius: 17,
                               backgroundColor: AppColors.primary,
-                              child: Text(
-                                initials,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              backgroundImage: UserModel.getAvatarImageProvider(user?.avatarUrl),
+                              child: UserModel.getAvatarImageProvider(user?.avatarUrl) == null
+                                  ? Text(
+                                      initials,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : null,
                             ),
                             Positioned(
                               bottom: 0,
@@ -302,11 +307,9 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
           ),
         ),
       ),
-      body: Stack(
+      body: ListView(
+        padding: const EdgeInsets.only(bottom: 24),
         children: [
-          ListView(
-            padding: const EdgeInsets.only(bottom: 90),
-            children: [
               // Search & Filter
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
@@ -534,70 +537,6 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
               ),
             ],
           ),
-
-          // Floating Quick Host Pill (Complementing Shell FAB)
-          Positioned(
-            bottom: 12,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: InkWell(
-                onTap: widget.onHostMeetup ?? () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const HostMeetupScreen()),
-                  );
-                },
-                borderRadius: BorderRadius.circular(30),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: (isDark ? AppColors.darkSurfaceCard : AppColors.onSurface).withOpacity(0.92),
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 14,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.bolt, color: AppColors.campusOrange, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Quick Host Meetup',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '+15 XP',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -674,10 +613,8 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                           CircleAvatar(
                             radius: 19,
                             backgroundColor: AppColors.primaryContainer,
-                            backgroundImage: (item.hostAvatar.isNotEmpty && item.hostAvatar.startsWith('http'))
-                                ? NetworkImage(item.hostAvatar)
-                                : null,
-                            child: (item.hostAvatar.isEmpty || !item.hostAvatar.startsWith('http'))
+                            backgroundImage: UserModel.getAvatarImageProvider(item.hostAvatar),
+                            child: UserModel.getAvatarImageProvider(item.hostAvatar) == null
                                 ? Text(
                                     item.hostName.isNotEmpty ? item.hostName[0].toUpperCase() : 'U',
                                     style: GoogleFonts.plusJakartaSans(
@@ -964,6 +901,9 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                         height: 26,
                         child: Stack(
                           children: List.generate(item.attendeeInitials.length, (idx) {
+                            final avatarUrl = (idx < item.attendeeAvatars.length) ? item.attendeeAvatars[idx] : null;
+                            final imageProvider = UserModel.getAvatarImageProvider(avatarUrl);
+
                             return Positioned(
                               left: idx * 16.0,
                               child: Container(
@@ -981,16 +921,24 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                                     color: isDark ? AppColors.darkSurfaceCard : Colors.white,
                                     width: 1.5,
                                   ),
+                                  image: imageProvider != null
+                                      ? DecorationImage(
+                                          image: imageProvider,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
                                 ),
                                 alignment: Alignment.center,
-                                child: Text(
-                                  item.attendeeInitials[idx],
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.onSurface,
-                                  ),
-                                ),
+                                child: imageProvider == null
+                                    ? Text(
+                                        item.attendeeInitials[idx],
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.onSurface,
+                                        ),
+                                      )
+                                    : null,
                               ),
                             );
                           }),

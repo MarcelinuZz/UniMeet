@@ -129,4 +129,18 @@ export class EventsController {
     }
     return this.eventsService.leave(eventId, userId || '');
   }
+
+  @Public()
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Hapus Kegiatan Meetup oleh Host' })
+  async deleteEvent(
+    @Param('id') eventId: string,
+    @Body() body?: { userId?: string; userEmail?: string },
+    @Query('email') emailQuery?: string,
+    @CurrentUser('id') authUserId?: string,
+  ) {
+    const identifier = authUserId || body?.userId || body?.userEmail || emailQuery || '';
+    return this.eventsService.deleteEvent(eventId, identifier);
+  }
 }

@@ -6,9 +6,25 @@ import { UpdateProfileDto } from './dto/update-profile.dto.js';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getProfile(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+  async getProfile(userIdOrIdentifier: string) {
+    let user = await this.resolveUser(userIdOrIdentifier);
+    if (!user) {
+      user = await this.prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: userIdOrIdentifier },
+            { email: userIdOrIdentifier.toLowerCase() },
+          ],
+        },
+      });
+    }
+
+    if (!user) {
+      throw new NotFoundException('Pengguna tidak ditemukan');
+    }
+
+    const fullUser = await this.prisma.user.findUnique({
+      where: { id: user.id },
       include: {
         _count: {
           select: {
@@ -19,24 +35,35 @@ export class UsersService {
       },
     });
 
-    if (!user) {
+    if (!fullUser) {
       throw new NotFoundException('Pengguna tidak ditemukan');
     }
 
-    const { password, hashedRefreshToken, _count, ...userData } = user;
+    const { password, hashedRefreshToken, _count, ...userData } = fullUser;
 
     return {
       ...userData,
       eventsHosted: _count.createdEvents,
       eventsJoined: _count.participations,
-      gpa: user.gpa ? Number(user.gpa).toFixed(2) : '3.84',
+      gpa: fullUser.gpa ? Number(fullUser.gpa).toFixed(2) : '3.84',
     };
   }
 
-  async updateProfile(userId: string, dto: UpdateProfileDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
+  async updateProfile(userIdOrIdentifier: string, dto: UpdateProfileDto) {
+    let user = await this.resolveUser(userIdOrIdentifier);
+    if (!user && dto.email) {
+      user = await this.resolveUser(dto.email);
+    }
+    if (!user) {
+      user = await this.prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: userIdOrIdentifier },
+            { email: (dto.email || userIdOrIdentifier).toLowerCase() },
+          ],
+        },
+      });
+    }
 
     if (!user) {
       throw new NotFoundException('Pengguna tidak ditemukan');
@@ -52,7 +79,7 @@ export class UsersService {
     }
 
     const updated = await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: user.id },
       data: {
         ...(dto.name && { name: dto.name }),
         ...(dto.major && { major: dto.major }),
@@ -83,6 +110,10 @@ export class UsersService {
         updatedAt: true,
       },
     });
+
+    this.userCache.set(updated.id.toLowerCase(), updated);
+    this.userCache.set(updated.email.toLowerCase(), updated);
+    if (updated.nim) this.userCache.set(updated.nim.toLowerCase(), updated);
 
     return {
       message: 'Profil berhasil diperbarui',

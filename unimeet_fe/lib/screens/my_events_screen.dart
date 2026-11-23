@@ -105,12 +105,15 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
     return currentName.isNotEmpty && event.hostName.toLowerCase().contains(currentName);
   }
 
-  void _openEventDetails(MeetupItem event) {
-    Navigator.of(context).push(
+  void _openEventDetails(MeetupItem event) async {
+    final res = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => EventDetailsScreen(meetup: event),
       ),
     );
+    if (res == true) {
+      _loadEvents();
+    }
   }
 
   void _openSquadChat(MeetupItem event) {

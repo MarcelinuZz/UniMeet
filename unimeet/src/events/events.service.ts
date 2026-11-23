@@ -221,6 +221,7 @@ export class EventsService {
           role: p.role,
           major: p.user.major,
           avatar: p.user.avatarInitials,
+          avatarUrl: p.user.avatarUrl,
         })),
       };
     });
@@ -337,6 +338,7 @@ export class EventsService {
         status: p.status,
         major: p.user.major,
         avatar: p.user.avatarInitials,
+        avatarUrl: p.user.avatarUrl,
         isCurrentUser: currentUserId === p.user.id,
       })),
       polls: event.polls.map((poll) => {
@@ -618,6 +620,46 @@ export class EventsService {
       pastCount: past.length,
       upcoming,
       past,
+    };
+  }
+
+  async deleteEvent(eventId: string, userIdOrEmail: string) {
+    const event = await this.prisma.event.findUnique({
+      where: { id: eventId },
+      include: { host: true },
+    });
+
+    if (!event) {
+      throw new NotFoundException('Meetup tidak ditemukan');
+    }
+
+    if (userIdOrEmail) {
+      const trimmed = userIdOrEmail.trim().toLowerCase();
+      const hostEmail = event.host?.email?.toLowerCase();
+      const hostId = event.hostId?.toLowerCase();
+
+      if (hostEmail !== trimmed && hostId !== trimmed) {
+        const user = await this.prisma.user.findFirst({
+          where: {
+            OR: [
+              { id: userIdOrEmail },
+              { email: trimmed },
+            ],
+          },
+        });
+        if (user && user.id !== event.hostId && user.email.toLowerCase() !== hostEmail) {
+          throw new ForbiddenException('Hanya host yang dapat menghapus kegiatan meetup ini');
+        }
+      }
+    }
+
+    await this.prisma.event.delete({
+      where: { id: eventId },
+    });
+
+    return {
+      message: 'Meetup berhasil dihapus',
+      id: eventId,
     };
   }
 }

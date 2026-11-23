@@ -18,6 +18,7 @@ class MeetupItem {
   final String? hostPerk;
   final String? description;
   final List<String> attendeeInitials;
+  final List<String?> attendeeAvatars;
   bool isJoined;
   bool isBookmarked;
   final DateTime? dateTime;
@@ -42,6 +43,7 @@ class MeetupItem {
     this.hostPerk,
     this.description,
     this.attendeeInitials = const [],
+    this.attendeeAvatars = const [],
     this.isJoined = false,
     this.isBookmarked = false,
     this.dateTime,

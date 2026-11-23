@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/widgets.dart';
 
 class UserModel {
   final String id;
@@ -131,4 +132,29 @@ class UserModel {
   String toJson() => json.encode(toMap());
 
   factory UserModel.fromJson(String source) => UserModel.fromMap(json.decode(source));
+
+  static ImageProvider? getAvatarImageProvider(String? avatarUrl) {
+    if (avatarUrl == null || avatarUrl.trim().isEmpty) return null;
+    final trimmed = avatarUrl.trim();
+    if (trimmed.startsWith('data:image')) {
+      try {
+        final commaIdx = trimmed.indexOf(',');
+        final base64Str = commaIdx != -1 ? trimmed.substring(commaIdx + 1) : trimmed;
+        return MemoryImage(base64Decode(base64Str));
+      } catch (_) {
+        return null;
+      }
+    }
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return NetworkImage(trimmed);
+    }
+    if (trimmed.length > 100 && !trimmed.contains(' ')) {
+      try {
+        return MemoryImage(base64Decode(trimmed));
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../models/user_model.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 
@@ -178,7 +179,7 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
       location: _locationController.text.trim().isEmpty
           ? 'BINUS Anggrek Campus'
           : _locationController.text.trim(),
-      campus: 'BINUS Anggrek Campus',
+      campus: AuthService.instance.currentUser?.campus ?? 'BINUS Anggrek Campus',
       cost: 'Free',
       maxParticipants: _capacity,
       vibe: 'Friendly & Casual',
@@ -238,13 +239,24 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
             icon: const Icon(Icons.share_outlined),
             onPressed: () {},
           ),
-          const Padding(
-            padding: EdgeInsets.only(right: 14),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage(
-                'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80',
-              ),
+          Padding(
+            padding: const EdgeInsets.only(right: 14),
+            child: ValueListenableBuilder<UserModel?>(
+              valueListenable: AuthService.instance.currentUserNotifier,
+              builder: (context, user, _) {
+                final avatarProvider = UserModel.getAvatarImageProvider(user?.avatarUrl);
+                return CircleAvatar(
+                  radius: 16,
+                  backgroundColor: AppColors.primary,
+                  backgroundImage: avatarProvider,
+                  child: avatarProvider == null
+                      ? Text(
+                          user?.avatarInitials ?? 'ME',
+                          style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+                        )
+                      : null,
+                );
+              },
             ),
           ),
         ],
@@ -1000,20 +1012,31 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
               ),
               child: Row(
                 children: [
-                  const Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: NetworkImage(
-                          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80',
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Icon(Icons.check_circle, color: AppColors.statusOpenEmerald, size: 14),
-                      ),
-                    ],
+                  ValueListenableBuilder<UserModel?>(
+                    valueListenable: AuthService.instance.currentUserNotifier,
+                    builder: (context, user, _) {
+                      final avatarProvider = UserModel.getAvatarImageProvider(user?.avatarUrl);
+                      return Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: AppColors.primary,
+                            backgroundImage: avatarProvider,
+                            child: avatarProvider == null
+                                ? Text(
+                                    user?.avatarInitials ?? 'ME',
+                                    style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+                                  )
+                                : null,
+                          ),
+                          const Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Icon(Icons.check_circle, color: AppColors.statusOpenEmerald, size: 14),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(width: 12),
                   Expanded(

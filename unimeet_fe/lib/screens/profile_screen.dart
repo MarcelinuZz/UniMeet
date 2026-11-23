@@ -6,6 +6,7 @@ import '../models/meetup_model.dart';
 import '../services/auth_service.dart';
 import '../main.dart';
 import '../services/api_service.dart';
+import '../services/image_picker_service.dart';
 import 'squad_chat_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -30,10 +31,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
   List<dynamic> _pastEvents = [];
   bool _isLoadingEvents = true;
 
+  String? _selectedAvatarUrl;
+  String? _uploadedFileName;
+  int? _uploadedFileSize;
+  String? _selectedCampus;
+  String? _selectedMajor;
+  bool _isSavingProfile = false;
+  final TextEditingController _customUrlController = TextEditingController();
+  final TextEditingController _customDegreeController = TextEditingController();
+
+  static const List<String> _binusCampuses = [
+    'BINUS Anggrek Campus',
+    'BINUS Syahdan Campus',
+    'BINUS Kijang Campus',
+    'BINUS Alam Sutera Campus',
+    'BINUS Bekasi Campus',
+    'BINUS Senayan Campus',
+    'BINUS Bandung Campus',
+    'BINUS Malang Campus',
+    'BINUS Semarang Campus',
+  ];
+
+  static const List<String> _binusMajors = [
+    'Computer Science',
+    'Cyber Security',
+    'Data Science',
+    'Artificial Intelligence',
+    'Information Systems',
+    'Business Information Technology',
+    'Interactive Design & Technology',
+    'Mobile Application & Technology',
+    'Game Application & Technology',
+    'Software Engineering',
+    'Accounting & Finance',
+    'International Business & Management',
+    'Digital Communication & Media',
+  ];
+
   @override
   void initState() {
     super.initState();
     _loadRealSchedules();
+    final u = AuthService.instance.currentUser;
+    _selectedAvatarUrl = u?.avatarUrl;
+    _selectedCampus = u?.campus ?? 'BINUS Anggrek Campus';
+    _selectedMajor = u?.major ?? 'Computer Science';
+    AuthService.instance.syncProfileFromBackend().then((_) {
+      if (mounted) {
+        final synced = AuthService.instance.currentUser;
+        if (synced != null) {
+          setState(() {
+            _selectedAvatarUrl = synced.avatarUrl ?? _selectedAvatarUrl;
+            _selectedCampus = synced.campus;
+            _selectedMajor = synced.major;
+          });
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _customUrlController.dispose();
+    _customDegreeController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadRealSchedules() async {
@@ -134,6 +195,306 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _pickAvatarFile() async {
+    try {
+      final picked = await pickImageFromDevice();
+      if (picked != null) {
+        setState(() {
+          _selectedAvatarUrl = picked.dataUrl;
+          _uploadedFileName = picked.name;
+          _uploadedFileSize = picked.size;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking file: $e');
+    }
+  }
+
+  void _openCampusSelectorSheet(BuildContext context, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurfaceCard : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkBorder : AppColors.surfaceBorder,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Select Active Campus',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: _binusCampuses.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (context, idx) {
+                    final campus = _binusCampuses[idx];
+                    final isSelected = _selectedCampus == campus;
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      leading: Icon(
+                        Icons.account_balance_rounded,
+                        color: isSelected ? AppColors.primary : AppColors.outline,
+                        size: 20,
+                      ),
+                      title: Text(
+                        campus,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          color: isSelected
+                              ? AppColors.primary
+                              : (isDark ? AppColors.darkOnSurface : AppColors.onSurface),
+                        ),
+                      ),
+                      trailing: isSelected
+                          ? const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 20)
+                          : null,
+                      onTap: () {
+                        setState(() => _selectedCampus = campus);
+                        Navigator.of(ctx).pop();
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _openMajorSelectorSheet(BuildContext context, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+          padding: EdgeInsets.fromLTRB(20, 16, 20, MediaQuery.of(context).viewInsets.bottom + 24),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurfaceCard : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkBorder : AppColors.surfaceBorder,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Select Active Degree / Major',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _customDegreeController,
+                      style: GoogleFonts.plusJakartaSans(fontSize: 13),
+                      decoration: InputDecoration(
+                        hintText: 'Or enter custom degree...',
+                        hintStyle: GoogleFonts.plusJakartaSans(
+                          fontSize: 12,
+                          color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        filled: true,
+                        fillColor: isDark ? AppColors.darkSurfaceContainerLow : AppColors.surfaceContainerLow,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      final text = _customDegreeController.text.trim();
+                      if (text.isNotEmpty) {
+                        setState(() => _selectedMajor = text);
+                        Navigator.of(ctx).pop();
+                      }
+                    },
+                    child: const Text('Set'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: _binusMajors.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (context, idx) {
+                    final major = _binusMajors[idx];
+                    final isSelected = _selectedMajor == major;
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      leading: Icon(
+                        Icons.school_rounded,
+                        color: isSelected ? AppColors.primary : AppColors.outline,
+                        size: 20,
+                      ),
+                      title: Text(
+                        major,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          color: isSelected
+                              ? AppColors.primary
+                              : (isDark ? AppColors.darkOnSurface : AppColors.onSurface),
+                        ),
+                      ),
+                      trailing: isSelected
+                          ? const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 20)
+                          : null,
+                      onTap: () {
+                        setState(() => _selectedMajor = major);
+                        Navigator.of(ctx).pop();
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _saveProfileSettings() async {
+    final user = AuthService.instance.currentUser;
+    if (user == null) return;
+
+    setState(() => _isSavingProfile = true);
+
+    final campusToSave = _selectedCampus ?? user.campus;
+    final majorToSave = _selectedMajor ?? user.major;
+    final avatarToSave = _selectedAvatarUrl;
+
+    try {
+      final res = await ApiService.instance.updateProfile(
+        email: user.email,
+        userId: user.id,
+        campus: campusToSave,
+        major: majorToSave,
+        avatarUrl: avatarToSave,
+      );
+
+      if (res == null) {
+        throw Exception('Server failed to update profile.');
+      }
+
+      final updated = user.copyWith(
+        campus: campusToSave,
+        major: majorToSave,
+        avatarUrl: avatarToSave,
+      );
+      await AuthService.instance.updateActiveUser(updated);
+
+      if (mounted) {
+        setState(() => _isSavingProfile = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Profile settings saved! Others will now see your updated profile picture, campus, and degree.',
+                    style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppColors.statusOpenEmerald,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSavingProfile = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save settings: $e'),
+            backgroundColor: AppColors.statusTrendingCoral,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -202,49 +563,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Stack(
-                            children: [
-                              Container(
-                                width: 76,
-                                height: 76,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(18),
-                                  gradient: const LinearGradient(
-                                    colors: [AppColors.primaryContainer, AppColors.campusBlue],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppColors.primary.withAlpha(60),
-                                      blurRadius: 8,
+                          GestureDetector(
+                            onTap: _pickAvatarFile,
+                            child: Stack(
+                              children: [
+                                Container(
+                                  width: 76,
+                                  height: 76,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(18),
+                                    gradient: const LinearGradient(
+                                      colors: [AppColors.primaryContainer, AppColors.campusBlue],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                  ],
+                                    image: UserModel.getAvatarImageProvider(user?.avatarUrl) != null
+                                        ? DecorationImage(
+                                            image: UserModel.getAvatarImageProvider(user!.avatarUrl)!,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : null,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.primary.withAlpha(60),
+                                        blurRadius: 8,
+                                      ),
+                                    ],
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: UserModel.getAvatarImageProvider(user?.avatarUrl) == null
+                                      ? Text(
+                                          displayInitials,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 26,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : null,
                                 ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  displayInitials,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white,
+                                Positioned(
+                                  bottom: -2,
+                                  right: -2,
+                                  child: Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 13),
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                bottom: -2,
-                                right: -2,
-                                child: Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.primaryContainer,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.school, color: Colors.white, size: 14),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           const SizedBox(width: 14),
                           Expanded(
@@ -482,7 +854,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   _buildTabButton(0, 'Upcoming (${_upcomingEvents.length})', isDark),
                   _buildTabButton(1, 'Past (${_pastEvents.length})', isDark),
-                  _buildTabButton(2, 'Preferences', isDark),
+                  _buildTabButton(2, 'Settings', isDark),
                 ],
               ),
             ),
@@ -767,7 +1139,456 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               }),
           ] else ...[
-            // Preferences & Settings
+            // 1. Profile & Campus Settings
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ValueListenableBuilder<UserModel?>(
+                valueListenable: AuthService.instance.currentUserNotifier,
+                builder: (context, user, _) {
+                  final currentAvatar = _selectedAvatarUrl ?? user?.avatarUrl;
+                  final currentCampus = _selectedCampus ?? user?.campus ?? 'BINUS Anggrek Campus';
+                  final currentMajor = _selectedMajor ?? user?.major ?? 'Computer Science';
+
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkSurfaceCard : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.badge_outlined, size: 20, color: AppColors.primary),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Profile & Campus Settings',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Update your photo, campus, and degree so other Binusians can recognize you in meetups and squad chats.',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Profile Picture Section
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: isDark ? AppColors.darkSurfaceContainerLow : AppColors.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.photo_camera_outlined, size: 16, color: AppColors.primary),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Profile Picture',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (currentAvatar != null && currentAvatar.isNotEmpty)
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedAvatarUrl = null;
+                                          _uploadedFileName = null;
+                                          _uploadedFileSize = null;
+                                        });
+                                      },
+                                      child: Text(
+                                        'Reset to Initials',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.statusTrendingCoral,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Drop file to upload box
+                              GestureDetector(
+                                onTap: _pickAvatarFile,
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? AppColors.darkSurfaceCard : Colors.white,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: currentAvatar != null
+                                          ? AppColors.primary
+                                          : (isDark ? AppColors.darkBorder : AppColors.surfaceBorder),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (currentAvatar != null && currentAvatar.isNotEmpty) ...[
+                                        Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Container(
+                                              width: 64,
+                                              height: 64,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                  image: UserModel.getAvatarImageProvider(currentAvatar)!,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                                border: Border.all(color: AppColors.primary, width: 2),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              bottom: 0,
+                                              right: 0,
+                                              child: Container(
+                                                padding: const EdgeInsets.all(3),
+                                                decoration: const BoxDecoration(
+                                                  color: AppColors.primary,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(Icons.check, size: 12, color: Colors.white),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                          _uploadedFileName ?? 'Custom Photo Selected',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w700,
+                                            color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        if (_uploadedFileSize != null) ...[
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '${(_uploadedFileSize! / 1024).toStringAsFixed(1)} KB',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 11,
+                                              color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ],
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.primary.withOpacity(0.12),
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: Text(
+                                                'Change File',
+                                                style: GoogleFonts.plusJakartaSans(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: AppColors.primary,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ] else ...[
+                                        Container(
+                                          width: 44,
+                                          height: 44,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary.withOpacity(0.1),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(Icons.cloud_upload_outlined, color: AppColors.primary, size: 24),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                          'Drop file to upload or browse',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w700,
+                                            color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          'Supports PNG, JPG, or WEBP',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 11,
+                                            color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Or Image URL input
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _customUrlController,
+                                      style: GoogleFonts.plusJakartaSans(fontSize: 12),
+                                      decoration: InputDecoration(
+                                        hintText: 'Or enter image URL (https://...)',
+                                        hintStyle: GoogleFonts.plusJakartaSans(
+                                          fontSize: 11,
+                                          color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        filled: true,
+                                        fillColor: isDark ? AppColors.darkSurfaceCard : Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                          borderSide: BorderSide(
+                                            color: isDark ? AppColors.darkBorder : AppColors.surfaceBorder,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                          borderSide: BorderSide(
+                                            color: isDark ? AppColors.darkBorder : AppColors.surfaceBorder,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    ),
+                                    onPressed: () {
+                                      final text = _customUrlController.text.trim();
+                                      if (text.isNotEmpty) {
+                                        setState(() {
+                                          _selectedAvatarUrl = text;
+                                          _uploadedFileName = 'URL Image';
+                                          _uploadedFileSize = null;
+                                        });
+                                      }
+                                    },
+                                    child: const Text('Apply'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Active Campus Section
+                        InkWell(
+                          onTap: () => _openCampusSelectorSheet(context, isDark),
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.darkSurfaceContainerLow : AppColors.surfaceContainerLow,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.primaryFixed,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.account_balance_rounded, size: 18, color: AppColors.primary),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Active Campus',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        currentCampus,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? AppColors.darkBorder : AppColors.surfaceBorder,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    'Change',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Active Degree / Major Section
+                        InkWell(
+                          onTap: () => _openMajorSelectorSheet(context, isDark),
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.darkSurfaceContainerLow : AppColors.surfaceContainerLow,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.secondaryContainer,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.school_rounded, size: 18, color: AppColors.onSecondaryContainer),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Active Degree / Major',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        currentMajor,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? AppColors.darkBorder : AppColors.surfaceBorder,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    'Change',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Save Settings Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              elevation: 2,
+                            ),
+                            onPressed: _isSavingProfile ? null : _saveProfileSettings,
+                            icon: _isSavingProfile
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : const Icon(Icons.cloud_upload_rounded, size: 20),
+                            label: Text(
+                              _isSavingProfile ? 'Saving...' : 'Save',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // 2. Account & Safety Settings
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
