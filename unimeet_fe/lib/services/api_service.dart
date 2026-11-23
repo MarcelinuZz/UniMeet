@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/meetup_model.dart';
+import 'auth_service.dart';
 
 class ApiService {
   static final ApiService instance = ApiService._internal();
@@ -320,6 +321,49 @@ class ApiService {
       debugPrint('ApiService fetchFriends error: $e');
     }
     return [];
+  }
+
+  static final ValueNotifier<int> notificationCount = ValueNotifier<int>(0);
+
+  Future<int> refreshNotificationCount([String? userEmail]) async {
+    try {
+      final email = userEmail ?? AuthService.instance.currentUser?.email ?? 'melvin.goh@binus.ac.id';
+      int total = 0;
+      // 1. Pending friend requests
+      final requests = await fetchFriendRequests(email);
+      total += requests.length;
+
+      // 2. Unread notifications
+      final res = await http
+          .get(Uri.parse('$baseUrl/notifications?user=${Uri.encodeComponent(email)}'))
+          .timeout(const Duration(seconds: 10));
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
+        final unread = data['unreadCount'];
+        if (unread is int) total += unread;
+      }
+      notificationCount.value = total;
+      return total;
+    } catch (e) {
+      debugPrint('ApiService refreshNotificationCount error: $e');
+      return notificationCount.value;
+    }
+  }
+
+  Future<bool> markAllNotificationsAsRead([String? userEmail]) async {
+    try {
+      final email = userEmail ?? AuthService.instance.currentUser?.email ?? 'melvin.goh@binus.ac.id';
+      final res = await http.patch(
+        Uri.parse('$baseUrl/notifications/read-all?user=${Uri.encodeComponent(email)}'),
+      );
+      if (res.statusCode == 200) {
+        await refreshNotificationCount(email);
+        return true;
+      }
+    } catch (e) {
+      debugPrint('ApiService markAllNotificationsAsRead error: $e');
+    }
+    return false;
   }
 
   Future<List<Map<String, dynamic>>> fetchFriendRequests(String userEmail) async {

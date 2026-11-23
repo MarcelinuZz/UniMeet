@@ -114,39 +114,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  final List<Map<String, String>> _badges = [
-    {'emoji': '🏸', 'text': 'Badminton Enthusiast'},
-    {'emoji': '☕', 'text': 'Cafe Hopper'},
-    {'emoji': '💻', 'text': 'UI/UX & Web Dev'},
-    {'emoji': '🎮', 'text': 'Valorant Gamer'},
-    {'emoji': '📚', 'text': 'Late Night Crammer'},
-    {'emoji': '🍕', 'text': 'Pizza Fan'},
-  ];
-
-  final List<Map<String, String>> _extraBadges = [
-    {'emoji': '🎨', 'text': 'Figma Wizard'},
-    {'emoji': '🏃', 'text': '5K Morning Runner'},
-    {'emoji': '🍜', 'text': 'Ramen Hunter'},
-    {'emoji': '🎸', 'text': 'Acoustic Jam'},
-  ];
-  int _extraIndex = 0;
-
-  void _addMoreBadge() {
-    if (_extraIndex < _extraBadges.length) {
-      setState(() {
-        _badges.add(_extraBadges[_extraIndex]);
-        _extraIndex++;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('All campus roles already added!'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
-  }
-
   void _confirmLogout(BuildContext context, UserModel? user) {
     showDialog(
       context: context,
@@ -741,107 +708,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           ),
 
-          // 2. Interest & Squad Badges
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.interests, size: 18, color: AppColors.primary),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Interest & Squad Badges',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      '${_badges.length} Active',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        color: AppColors.outline,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    ..._badges.map((b) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkSurfaceCard : Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(b['emoji']!, style: const TextStyle(fontSize: 12)),
-                            const SizedBox(width: 6),
-                            Text(
-                              b['text']!,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                    InkWell(
-                      onTap: _addMoreBadge,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryFixed,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.add_circle, size: 14, color: AppColors.primary),
-                            const SizedBox(width: 4),
-                            Text(
-                              '+ Add Role',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-
-          // 3. Segmented Tab Bar Switcher
+          // 2. Segmented Tab Bar Switcher
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(

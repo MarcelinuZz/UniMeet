@@ -134,6 +134,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
           _incomingRequests = mappedRequests;
           _isLoading = false;
         });
+        ApiService.instance.refreshNotificationCount(currentEmail);
       }
     } catch (e) {
       debugPrint('Error loading squads data: $e');

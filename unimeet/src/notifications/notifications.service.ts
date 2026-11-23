@@ -5,15 +5,32 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export class NotificationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserNotifications(userId: string) {
+  async getUserNotifications(userIdentifier: string) {
+    if (!userIdentifier) {
+      return { unreadCount: 0, notifications: [] };
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: userIdentifier },
+          { email: userIdentifier },
+        ],
+      },
+    });
+
+    if (!user) {
+      return { unreadCount: 0, notifications: [] };
+    }
+
     const notifications = await this.prisma.notification.findMany({
-      where: { userId },
+      where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
       take: 30,
     });
 
     const unreadCount = await this.prisma.notification.count({
-      where: { userId, isRead: false },
+      where: { userId: user.id, isRead: false },
     });
 
     return {
@@ -22,15 +39,32 @@ export class NotificationsService {
     };
   }
 
-  async markAsRead(userId: string, notificationId?: string) {
+  async markAsRead(userIdentifier: string, notificationId?: string) {
+    if (!userIdentifier) {
+      return { success: false, message: 'User identifier required' };
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: userIdentifier },
+          { email: userIdentifier },
+        ],
+      },
+    });
+
+    if (!user) {
+      return { success: false, message: 'User not found' };
+    }
+
     if (notificationId) {
       await this.prisma.notification.updateMany({
-        where: { id: notificationId, userId },
+        where: { id: notificationId, userId: user.id },
         data: { isRead: true },
       });
     } else {
       await this.prisma.notification.updateMany({
-        where: { userId, isRead: false },
+        where: { userId: user.id, isRead: false },
         data: { isRead: true },
       });
     }

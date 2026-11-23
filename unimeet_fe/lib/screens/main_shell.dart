@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../services/api_service.dart';
 import 'discover_screen.dart';
 import 'host_meetup_screen.dart';
 import 'squads_hub_screen.dart';
@@ -23,6 +24,12 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    ApiService.instance.refreshNotificationCount();
+  }
 
   void _openHostScreen() {
     Navigator.of(context).push(
@@ -106,7 +113,22 @@ class _MainShellState extends State<MainShell> {
                     child: const Icon(Icons.add, color: Colors.white, size: 28),
                   ),
                 ),
-                _buildNavItem(2, Icons.forum_outlined, Icons.forum, 'Squads', isDark, badge: '3'),
+                ValueListenableBuilder<int>(
+                  valueListenable: ApiService.notificationCount,
+                  builder: (context, notifCount, _) {
+                    final badgeStr = notifCount > 99
+                        ? '99+'
+                        : (notifCount > 0 ? '$notifCount' : null);
+                    return _buildNavItem(
+                      2,
+                      Icons.forum_outlined,
+                      Icons.forum,
+                      'Squads',
+                      isDark,
+                      badge: badgeStr,
+                    );
+                  },
+                ),
                 _buildNavItem(3, Icons.person_outline, Icons.person, 'Profile', isDark),
               ],
             ),
@@ -130,7 +152,10 @@ class _MainShellState extends State<MainShell> {
         : (isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline);
 
     return InkWell(
-      onTap: () => setState(() => _currentIndex = index),
+      onTap: () {
+        setState(() => _currentIndex = index);
+        ApiService.instance.refreshNotificationCount();
+      },
       borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
