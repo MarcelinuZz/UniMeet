@@ -28,6 +28,7 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
   String _selectedCategory = 'all';
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  int _selectedTab = 0; // 0: Upcoming, 1: Past
 
   final List<Map<String, String>> _categories = [
     {'id': 'all', 'label': 'All Meetups', 'emoji': '🔥'},
@@ -73,6 +74,36 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
           m.tags.any((t) => t.toLowerCase().contains(_searchQuery.toLowerCase()));
       return matchesCategory && matchesSearch;
     }).toList();
+  }
+
+  bool _isUpcoming(MeetupItem m) {
+    if (m.dateTime != null) {
+      return m.dateTime!.isAfter(DateTime.now().subtract(const Duration(hours: 2)));
+    }
+    final lower = m.time.toLowerCase();
+    if (lower.contains('yesterday') || lower.contains('completed') || lower.contains('past')) {
+      return false;
+    }
+    return true;
+  }
+
+  List<MeetupItem> get _upcomingMeetups {
+    return _filteredMeetups.where((m) => _isUpcoming(m)).toList();
+  }
+
+  List<MeetupItem> get _pastMeetups {
+    final list = _filteredMeetups.where((m) => !_isUpcoming(m)).toList();
+    list.sort((a, b) {
+      if (a.dateTime == null && b.dateTime == null) return 0;
+      if (a.dateTime == null) return 1;
+      if (b.dateTime == null) return -1;
+      return b.dateTime!.compareTo(a.dateTime!);
+    });
+    return list;
+  }
+
+  List<MeetupItem> get _currentMeetupList {
+    return _selectedTab == 0 ? _upcomingMeetups : _pastMeetups;
   }
 
   void _toggleJoin(MeetupItem item) async {
@@ -316,59 +347,6 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
-
-                    // Campus Geospatial Filter Pill
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkSurfaceContainerLow : AppColors.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.near_me_rounded, color: AppColors.campusBlue, size: 14),
-                              const SizedBox(width: 5),
-                              Text(
-                                'Anggrek Campus · Within 500m',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
-                                ),
-                              ),
-                              const SizedBox(width: 2),
-                              Icon(Icons.expand_more, size: 14, color: AppColors.outline),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: const BoxDecoration(
-                                color: AppColors.statusOpenEmerald,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              '38 Active Squads',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
@@ -429,100 +407,19 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                 ),
               ),
 
-              // Campus Spotlight Banner (Midterm Cram Week)
+              // Upcoming & Past Event Tabs
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                 child: Container(
+                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        AppColors.primaryContainer,
-                        AppColors.primary,
-                        AppColors.accentElectricViolet,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    color: isDark ? AppColors.darkSurfaceContainer : AppColors.surfaceContainer,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  padding: const EdgeInsets.all(16),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.local_fire_department, size: 12, color: Colors.white),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'MIDTERM CRAM WEEK',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.white,
-                                      letterSpacing: 0.6,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Need urgent study buddies or library quiet rooms?',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                height: 1.25,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Browse 12 fast-forming study pods near Anggrek Lt. 4',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                color: AppColors.onPrimaryContainer,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppColors.primary,
-                          elevation: 2,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _selectedCategory = 'study';
-                          });
-                        },
-                        child: Text(
-                          'Squad Up',
-                          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 12),
-                        ),
-                      ),
+                      _buildTabButton(0, 'Upcoming (${_upcomingMeetups.length})', isDark),
+                      _buildTabButton(1, 'Past (${_pastMeetups.length})', isDark),
                     ],
                   ),
                 ),
@@ -530,12 +427,12 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
 
               // Activity Cards Section Header
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Happening Soon',
+                      _selectedTab == 0 ? 'Happening Soon' : 'Past Events',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -543,7 +440,7 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                       ),
                     ),
                     Text(
-                      'Live Feed',
+                      _selectedTab == 0 ? 'Live Feed' : 'Completed',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -555,16 +452,22 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
               ),
 
               // Cards Feed
-              if (_filteredMeetups.isEmpty)
+              if (_currentMeetupList.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 40),
                   child: Center(
                     child: Column(
                       children: [
-                        const Icon(Icons.search_off_rounded, size: 48, color: AppColors.outline),
+                        Icon(
+                          _selectedTab == 0 ? Icons.event_available_outlined : Icons.history_rounded,
+                          size: 48,
+                          color: AppColors.outline,
+                        ),
                         const SizedBox(height: 10),
                         Text(
-                          'No meetups found in this filter',
+                          _selectedTab == 0
+                              ? 'No upcoming meetups found'
+                              : 'No past meetups found',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -576,7 +479,7 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                   ),
                 )
               else
-                ..._filteredMeetups.map((item) => _buildMeetupCard(item, isDark)),
+                ..._currentMeetupList.map((item) => _buildMeetupCard(item, isDark)),
 
               // In-Stream End Indicator
               Padding(
@@ -694,6 +597,46 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTabButton(int idx, String title, bool isDark) {
+    final isSelected = _selectedTab == idx;
+    return Expanded(
+      child: InkWell(
+        onTap: () => setState(() => _selectedTab = idx),
+        borderRadius: BorderRadius.circular(10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? (isDark ? AppColors.darkSurfaceCard : Colors.white)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+              color: isSelected
+                  ? (isDark ? AppColors.darkOnSurface : AppColors.primary)
+                  : (isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant),
+            ),
+          ),
+        ),
       ),
     );
   }
