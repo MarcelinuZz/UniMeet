@@ -517,31 +517,38 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: (isDark ? AppColors.darkSurfaceCard : Colors.white).withOpacity(0.92),
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.school, size: 13, color: AppColors.primary),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'BINUS $_campus Campus',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: (isDark ? AppColors.darkSurfaceCard : Colors.white).withOpacity(0.92),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.school, size: 13, color: AppColors.primary),
+                                      const SizedBox(width: 4),
+                                      Flexible(
+                                        child: Text(
+                                          'BINUS $_campus',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
+                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                 decoration: BoxDecoration(
@@ -562,7 +569,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      spotsRemaining == 0 ? 'Full' : '$spotsRemaining spots left',
+                                      spotsRemaining == 0 ? 'Full' : '$spotsRemaining left',
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
@@ -586,7 +593,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Category & Verified pill
-                          Row(
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -603,7 +612,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
@@ -690,12 +698,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                     children: [
                                       Row(
                                         children: [
-                                          Text(
-                                            _hostName,
-                                            style: GoogleFonts.plusJakartaSans(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w800,
-                                              color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                          Flexible(
+                                            child: Text(
+                                              _hostName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.plusJakartaSans(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w800,
+                                                color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                              ),
                                             ),
                                           ),
                                           const SizedBox(width: 6),
@@ -719,11 +731,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                       const SizedBox(height: 3),
                                       Row(
                                         children: [
-                                          Text(
-                                            _hostMajor,
-                                            style: GoogleFonts.plusJakartaSans(
-                                              fontSize: 11,
-                                              color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                                          Flexible(
+                                            child: Text(
+                                              _hostMajor,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.plusJakartaSans(
+                                                fontSize: 11,
+                                                color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                                              ),
                                             ),
                                           ),
                                           const SizedBox(width: 8),
@@ -878,13 +894,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      'CONFIRMED MEMBERS (${_roster.isNotEmpty ? _roster.length : _currentSlots})',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.outline,
-                                        letterSpacing: 0.5,
+                                    Expanded(
+                                      child: Text(
+                                        'CONFIRMED MEMBERS (${_roster.isNotEmpty ? _roster.length : _currentSlots})',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.outline,
+                                          letterSpacing: 0.5,
+                                        ),
                                       ),
                                     ),
                                     Row(
@@ -1088,12 +1108,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                   children: [
                                     const Icon(Icons.task_alt, size: 18, color: AppColors.statusOpenEmerald),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      'Campus Guidelines & Safety',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w800,
-                                        color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                    Expanded(
+                                      child: Text(
+                                        'Campus Guidelines & Safety',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w800,
+                                          color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -1169,9 +1191,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                             ),
                                           ),
                                           Text(
-                                            ' / participant',
+                                            ' / person',
                                             style: GoogleFonts.plusJakartaSans(
-                                              fontSize: 11,
+                                              fontSize: 10,
                                               color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
                                             ),
                                           ),
@@ -1218,17 +1240,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                       foregroundColor: AppColors.statusTrendingCoral,
                                       side: const BorderSide(color: AppColors.statusTrendingCoral, width: 1.2),
                                       backgroundColor: AppColors.statusTrendingCoral.withOpacity(0.08),
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                     ),
                                     onPressed: _confirmDeleteMeetup,
-                                    icon: const Icon(Icons.delete_outline_rounded, size: 16),
+                                    icon: const Icon(Icons.delete_outline_rounded, size: 15),
                                     label: Text(
                                       'Delete',
-                                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12),
+                                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 11),
                                     ),
                                   ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 5),
                                 ],
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
@@ -1236,9 +1258,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                         ? AppColors.accentElectricViolet
                                         : (_isJoined ? AppColors.statusOpenEmerald : AppColors.primary),
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                    elevation: 3,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    elevation: 2,
                                   ),
                                   onPressed: _handleJoinFlow,
                                   child: Column(
@@ -1251,23 +1273,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                             _isHost
                                                 ? Icons.campaign_rounded
                                                 : (_isJoined ? Icons.check_circle_rounded : Icons.login_rounded),
-                                            size: 15,
+                                            size: 14,
                                           ),
-                                          const SizedBox(width: 5),
+                                          const SizedBox(width: 4),
                                           Text(
                                             _isHost
-                                                ? 'Hosting • Squad Chat'
-                                                : (_isJoined ? 'In Squad • Chat' : 'Join Squad'),
-                                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12),
+                                                ? 'Squad Chat'
+                                                : (_isJoined ? 'Squad Chat' : 'Join Squad'),
+                                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 11),
                                           ),
                                         ],
                                       ),
                                       Text(
                                         _isHost
                                             ? 'Host Controls'
-                                            : (_isJoined ? 'Spot Confirmed ✓' : 'Instant RSVP'),
+                                            : (_isJoined ? 'Spot Confirmed' : 'Instant RSVP'),
                                         style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 9,
+                                          fontSize: 8,
                                           color: Colors.white.withOpacity(0.85),
                                         ),
                                       ),

@@ -315,6 +315,9 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
         ),
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          labelPadding: const EdgeInsets.symmetric(horizontal: 14),
           indicatorColor: AppColors.primary,
           indicatorWeight: 3,
           labelColor: AppColors.primary,
@@ -446,20 +449,29 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Direct Messages',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+              Flexible(
+                child: Text(
+                  'Direct Messages',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(
-                '${_allStudents.where((s) => s.isFriend).length} active conversations',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  '${_allStudents.where((s) => s.isFriend).length} active',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -475,20 +487,29 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Active Meetup Squads',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+              Flexible(
+                child: Text(
+                  'Active Meetup Squads',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(
-                '${filteredSquads.length} squad chats available',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  '${filteredSquads.length} squad chats',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -696,14 +717,18 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                       children: [
                         Icon(Icons.location_on, size: 12, color: AppColors.outline),
                         const SizedBox(width: 3),
-                        Text(
-                          squad.location,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 10,
-                            color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+                        Expanded(
+                          child: Text(
+                            squad.location,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10,
+                              color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 6),
                         if (squad.isJoined) ...[
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
@@ -851,20 +876,28 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              friend.name,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                        Expanded(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  friend.name,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.verified, size: 13, color: AppColors.campusBlue),
-                          ],
+                              const SizedBox(width: 4),
+                              const Icon(Icons.verified, size: 13, color: AppColors.campusBlue),
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
                           friend.isOnline ? 'Active' : 'Offline',
                           style: GoogleFonts.plusJakartaSans(
@@ -895,14 +928,18 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
 
                     Row(
                       children: [
-                        Text(
-                          '${friend.major} • ${friend.campus.replaceAll(' Campus', '')}',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 10,
-                            color: isDark ? AppColors.darkOnSurfaceVariant.withOpacity(0.7) : AppColors.outline,
+                        Expanded(
+                          child: Text(
+                            '${friend.major} • ${friend.campus.replaceAll(' Campus', '')}',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10,
+                              color: isDark ? AppColors.darkOnSurfaceVariant.withOpacity(0.7) : AppColors.outline,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
@@ -1102,20 +1139,29 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'My Campus Friends (${myFriends.length})',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+              Flexible(
+                child: Text(
+                  'My Campus Friends (${myFriends.length})',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(
-                '${myFriends.where((f) => f.isOnline).length} online now',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.statusOpenEmerald,
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  '${myFriends.where((f) => f.isOnline).length} online',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.statusOpenEmerald,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -1132,12 +1178,16 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
             children: [
               const Icon(Icons.auto_awesome, color: AppColors.primary, size: 16),
               const SizedBox(width: 6),
-              Text(
-                'Classmates You May Know',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+              Expanded(
+                child: Text(
+                  'Classmates You May Know',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -1242,6 +1292,8 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                         color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       'NIM: ${req.nim} • ${req.campus.replaceAll(' Campus', '')}',
@@ -1249,6 +1301,8 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                         fontSize: 10,
                         color: isDark ? AppColors.darkOnSurfaceVariant.withOpacity(0.7) : AppColors.outline,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -1455,6 +1509,8 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                       color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     'NIM: ${student.nim} • ${student.campus.replaceAll(' Campus', '')}',
@@ -1462,6 +1518,8 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                       fontSize: 10,
                       color: isDark ? AppColors.darkOnSurfaceVariant.withOpacity(0.7) : AppColors.outline,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -1477,7 +1535,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
                 minimumSize: const Size(0, 32),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
@@ -1495,7 +1553,7 @@ class _SquadsHubScreenState extends State<SquadsHubScreen> with SingleTickerProv
               },
               icon: const Icon(Icons.chat_bubble_rounded, size: 13),
               label: Text(
-                'Direct Chat',
+                'Chat',
                 style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800),
               ),
             )

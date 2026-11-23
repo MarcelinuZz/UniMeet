@@ -153,11 +153,15 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
           children: [
             const Icon(Icons.confirmation_number_outlined, color: AppColors.primary, size: 22),
             const SizedBox(width: 8),
-            Text(
-              'My Events & Passes',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
+            Flexible(
+              child: Text(
+                'My Events & Passes',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ],
@@ -189,6 +193,9 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
         ],
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          labelPadding: const EdgeInsets.symmetric(horizontal: 14),
           indicatorColor: AppColors.primary,
           indicatorWeight: 3,
           labelColor: AppColors.primary,
@@ -220,7 +227,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Hosted by Me'),
+                  const Text('Hosted'),
                   const SizedBox(width: 6),
                   _buildCountBadge(hostedEvents.length, AppColors.accentElectricViolet),
                 ],
@@ -395,28 +402,35 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         // Category Pill
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(event.categoryEmoji, style: const TextStyle(fontSize: 13)),
-                              const SizedBox(width: 5),
-                              Text(
-                                event.category.toUpperCase(),
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.primary,
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(event.categoryEmoji, style: const TextStyle(fontSize: 13)),
+                                const SizedBox(width: 5),
+                                Flexible(
+                                  child: Text(
+                                    event.category.toUpperCase(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 8),
 
                         // Role Pill (Host vs Joined)
                         Container(
@@ -469,12 +483,16 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
                       children: [
                         const Icon(Icons.access_time_rounded, size: 14, color: AppColors.primary),
                         const SizedBox(width: 6),
-                        Text(
-                          event.time,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                        Expanded(
+                          child: Text(
+                            event.time,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ],
