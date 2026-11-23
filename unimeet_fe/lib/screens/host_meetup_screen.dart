@@ -33,6 +33,7 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
     {'name': 'Academic', 'icon': Icons.menu_book, 'color': AppColors.primary},
     {'name': 'Hangout', 'icon': Icons.ramen_dining, 'color': AppColors.campusOrange},
     {'name': 'Gaming', 'icon': Icons.sports_esports, 'color': AppColors.accentElectricViolet},
+    {'name': 'Tech', 'icon': Icons.terminal, 'color': AppColors.primary},
     {'name': 'Creative', 'icon': Icons.palette, 'color': AppColors.statusTrendingCoral},
     {'name': 'Outdoor', 'icon': Icons.park, 'color': AppColors.tertiary},
   ];

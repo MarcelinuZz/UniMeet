@@ -31,11 +31,12 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
 
   final List<Map<String, String>> _categories = [
     {'id': 'all', 'label': 'All Meetups', 'emoji': '🔥'},
+    {'id': 'academic', 'label': 'Study & Academic', 'emoji': '📚'},
     {'id': 'sports', 'label': 'Sports & Fitness', 'emoji': '🏸'},
-    {'id': 'study', 'label': 'Study & Academic', 'emoji': '📚'},
     {'id': 'hangout', 'label': 'Hangout & Food', 'emoji': '☕'},
     {'id': 'gaming', 'label': 'Gaming & Esports', 'emoji': '🎮'},
-    {'id': 'coding', 'label': 'Coding Jam', 'emoji': '💻'},
+    {'id': 'tech', 'label': 'Coding Jam', 'emoji': '💻'},
+    {'id': 'outdoor', 'label': 'Creative & Outdoor', 'emoji': '🌿'},
   ];
 
   late List<MeetupItem> _meetups;
@@ -64,9 +65,74 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
     super.dispose();
   }
 
+  bool _matchesCategory(MeetupItem m, String selectedCategory) {
+    if (selectedCategory == 'all') return true;
+
+    final evCat = m.category.toLowerCase().trim();
+    final selCat = selectedCategory.toLowerCase().trim();
+
+    if (evCat == selCat) return true;
+
+    // Academic / Study
+    if (selCat == 'academic' || selCat == 'study') {
+      if (evCat == 'academic' || evCat == 'study' || evCat.contains('acad') || evCat.contains('study')) {
+        return true;
+      }
+    }
+
+    // Sports / Fitness
+    if (selCat == 'sports' || selCat == 'fitness') {
+      if (evCat == 'sports' || evCat == 'fitness' || evCat.contains('sport') || evCat.contains('fit')) {
+        return true;
+      }
+    }
+
+    // Hangout / Food
+    if (selCat == 'hangout' || selCat == 'food') {
+      if (evCat == 'hangout' || evCat == 'food' || evCat == 'cafe' || evCat.contains('hangout') || evCat.contains('food')) {
+        return true;
+      }
+    }
+
+    // Gaming / Esports
+    if (selCat == 'gaming' || selCat == 'esports') {
+      if (evCat == 'gaming' || evCat == 'esports' || evCat.contains('game') || evCat.contains('esport')) {
+        return true;
+      }
+    }
+
+    // Tech / Coding
+    if (selCat == 'tech' || selCat == 'coding') {
+      if (evCat == 'tech' || evCat == 'coding' || evCat.contains('tech') || evCat.contains('code') || evCat.contains('jam')) {
+        return true;
+      }
+    }
+
+    // Outdoor / Creative
+    if (selCat == 'outdoor' || selCat == 'creative') {
+      if (evCat == 'outdoor' || evCat == 'creative' || evCat.contains('outdoor') || evCat.contains('creative')) {
+        return true;
+      }
+    }
+
+    // Check tags as fallback
+    for (final tag in m.tags) {
+      final t = tag.toLowerCase().replaceAll('#', '').trim();
+      if (t == selCat) return true;
+      if ((selCat == 'academic' || selCat == 'study') && (t.contains('acad') || t.contains('study'))) return true;
+      if ((selCat == 'sports' || selCat == 'fitness') && (t.contains('sport') || t.contains('fit'))) return true;
+      if ((selCat == 'hangout' || selCat == 'food') && (t.contains('food') || t.contains('hang') || t.contains('cafe'))) return true;
+      if ((selCat == 'gaming' || selCat == 'esports') && (t.contains('game') || t.contains('esport'))) return true;
+      if ((selCat == 'tech' || selCat == 'coding') && (t.contains('tech') || t.contains('code') || t.contains('jam'))) return true;
+      if ((selCat == 'outdoor' || selCat == 'creative') && (t.contains('outdoor') || t.contains('creat'))) return true;
+    }
+
+    return false;
+  }
+
   List<MeetupItem> get _filteredMeetups {
     return _meetups.where((m) {
-      final matchesCategory = _selectedCategory == 'all' || m.category == _selectedCategory;
+      final matchesCategory = _matchesCategory(m, _selectedCategory);
       final matchesSearch = _searchQuery.isEmpty ||
           m.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           m.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -481,6 +547,24 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                             color: AppColors.outline,
                           ),
                         ),
+                        if (_selectedTab == 0 && _pastMeetups.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _selectedTab = 1;
+                              });
+                            },
+                            icon: const Icon(Icons.history, size: 16),
+                            label: Text(
+                              'View ${_pastMeetups.length} completed meetup${_pastMeetups.length > 1 ? 's' : ''}',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

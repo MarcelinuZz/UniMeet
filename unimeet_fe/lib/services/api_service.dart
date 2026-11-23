@@ -49,6 +49,12 @@ class ApiService {
   }) async {
     try {
       final scheduledDate = dateTime ?? DateTime.now().add(const Duration(hours: 4));
+      String mappedCategory = category.toUpperCase().trim();
+      if (mappedCategory == 'HANGOUT') mappedCategory = 'FOOD';
+      if (mappedCategory == 'CREATIVE') mappedCategory = 'OUTDOOR';
+      if (mappedCategory == 'STUDY') mappedCategory = 'ACADEMIC';
+      if (mappedCategory == 'CODING') mappedCategory = 'TECH';
+
       final res = await http.post(
         Uri.parse('$baseUrl/events'),
         headers: {'Content-Type': 'application/json'},
@@ -56,7 +62,7 @@ class ApiService {
           'hostEmail': hostEmail,
           'title': title,
           'description': description,
-          'category': category.toUpperCase(),
+          'category': mappedCategory,
           'dateTime': scheduledDate.toIso8601String(),
           'timeString': timeString,
           'location': location,
@@ -202,10 +208,12 @@ class ApiService {
     final host = json['host'] ?? {};
     final category = (json['category'] ?? 'SPORTS').toString().toLowerCase();
     String emoji = '🏸';
-    if (category == 'gaming') emoji = '🎯';
+    if (category == 'gaming') emoji = '🎮';
     if (category == 'academic') emoji = '📚';
-    if (category == 'tech') emoji = '☕';
-    if (category == 'food') emoji = '🍔';
+    if (category == 'tech') emoji = '💻';
+    if (category == 'food' || category == 'hangout') emoji = '☕';
+    if (category == 'outdoor' || category == 'creative') emoji = '🌿';
+    if (category == 'sports') emoji = '🏸';
 
     final participants = json['participants'] as List? ?? [];
     final roster = json['roster'] as List? ?? participants;
