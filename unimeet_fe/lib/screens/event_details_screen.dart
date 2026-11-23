@@ -465,12 +465,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
-                Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 680),
-                    child: ListView(
-                      padding: const EdgeInsets.only(bottom: 120),
-                      children: [
+                ListView(
+                  padding: const EdgeInsets.only(bottom: 120),
+                  children: [
                     // 1. Hero Cover Banner with Tags
                     Stack(
                       children: [
@@ -1127,8 +1124,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     ),
                   ],
                 ),
-              ),
-            ),
 
                 // Pinned Sticky Bottom RSVP Bar
                 Positioned(
@@ -1148,10 +1143,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         ),
                       ],
                     ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 680),
-                        child: Column(
+                    child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Row(
@@ -1307,11 +1299,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-    );
+        );
   }
 
   Widget _buildBentoItem({

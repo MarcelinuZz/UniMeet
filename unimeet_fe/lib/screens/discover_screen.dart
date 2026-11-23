@@ -161,12 +161,9 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
           ),
           child: SafeArea(
             bottom: false,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 680),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
                     children: [
                       // Logo & Brand Name
                       Container(
@@ -314,12 +311,7 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
           ),
         ),
       ),
-    ),
-  ),
-  body: Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 680),
-      child: ListView(
+      body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
               // Search & Filter
@@ -549,8 +541,6 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 

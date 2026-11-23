@@ -350,13 +350,10 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
       );
     }
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 680),
-        child: ListView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-          itemCount: events.length,
-          itemBuilder: (context, index) {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+      itemCount: events.length,
+      itemBuilder: (context, index) {
         final event = events[index];
         final isHost = _isCurrentUserHost(event);
         final ticketCode = _findTicketCode(event.id);
@@ -626,8 +623,6 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
           ),
         );
       },
-    ),
-  ),
-);
+    );
   }
 }
