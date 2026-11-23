@@ -161,70 +161,77 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
           ),
           child: SafeArea(
             bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  // Logo & Brand Name
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(9),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.12),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 680),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      // Logo & Brand Name
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(9),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.12),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Image.asset(
-                      'assets/logos/logo.jpg',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: AppColors.primary,
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.school, color: Colors.white, size: 20),
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.asset(
+                          'assets/logos/logo.jpg',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            color: AppColors.primary,
+                            alignment: Alignment.center,
+                            child: const Icon(Icons.school, color: Colors.white, size: 20),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'UniMeet',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  'UniMeet',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.verified, size: 15, color: AppColors.campusBlue),
+                              ],
                             ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.verified, size: 15, color: AppColors.campusBlue),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    'BINUS Anggrek Campus',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                                const Icon(Icons.expand_more, size: 14, color: AppColors.outline),
+                              ],
+                            ),
                           ],
                         ),
-                        Row(
-                          children: [
-                            Text(
-                              'BINUS Anggrek Campus',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
-                              ),
-                            ),
-                            Icon(Icons.expand_more, size: 14, color: AppColors.outline),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
 
                   // Notification Bell with Badge
                   Stack(
@@ -307,7 +314,12 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
           ),
         ),
       ),
-      body: ListView(
+    ),
+  ),
+  body: Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 680),
+      child: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
               // Search & Filter
@@ -537,6 +549,8 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
               ),
             ],
           ),
+        ),
+      ),
     );
   }
 
@@ -606,83 +620,102 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 19,
-                            backgroundColor: AppColors.primaryContainer,
-                            backgroundImage: UserModel.getAvatarImageProvider(item.hostAvatar),
-                            child: UserModel.getAvatarImageProvider(item.hostAvatar) == null
-                                ? Text(
-                                    item.hostName.isNotEmpty ? item.hostName[0].toUpperCase() : 'U',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : null,
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              width: 13,
-                              height: 13,
-                              decoration: const BoxDecoration(
-                                color: AppColors.campusBlue,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.check, size: 9, color: Colors.white),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 19,
+                              backgroundColor: AppColors.primaryContainer,
+                              backgroundImage: UserModel.getAvatarImageProvider(item.hostAvatar),
+                              child: UserModel.getAvatarImageProvider(item.hostAvatar) == null
+                                  ? Text(
+                                      item.hostName.isNotEmpty ? item.hostName[0].toUpperCase() : 'U',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : null,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                item.hostName,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                width: 13,
+                                height: 13,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.campusBlue,
+                                  shape: BoxShape.circle,
                                 ),
+                                child: const Icon(Icons.check, size: 9, color: Colors.white),
                               ),
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: isDark ? AppColors.darkSurfaceContainer : AppColors.surfaceContainerHigh,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  item.hostMajor,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.campusBlue,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Flexible(
+                                    flex: 2,
+                                    child: Text(
+                                      item.hostName,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                      ),
+                                    ),
                                   ),
+                                  if (item.hostMajor.isNotEmpty) ...[
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      flex: 3,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: isDark ? AppColors.darkSurfaceContainer : AppColors.surfaceContainerHigh,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          item.hostMajor,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.campusBlue,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              Text(
+                                'Posted recently · Verified Host',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11,
+                                  color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
                                 ),
                               ),
                             ],
                           ),
-                          Text(
-                            'Posted recently · Verified Host',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11,
-                              color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 4),
                   IconButton(
                     icon: Icon(
                       item.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
@@ -714,6 +747,7 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
@@ -766,19 +800,26 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.location_on, size: 14, color: AppColors.campusOrange),
-                      const SizedBox(width: 4),
-                      Text(
-                        item.location,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
-                          color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 220),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.location_on, size: 14, color: AppColors.campusOrange),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            item.location,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12,
+                              color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -893,68 +934,77 @@ class _DiscoverFeedScreenState extends State<DiscoverFeedScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      // Stacked Initials
-                      SizedBox(
-                        width: (item.attendeeInitials.length * 16.0) + 12,
-                        height: 26,
-                        child: Stack(
-                          children: List.generate(item.attendeeInitials.length, (idx) {
-                            final avatarUrl = (idx < item.attendeeAvatars.length) ? item.attendeeAvatars[idx] : null;
-                            final imageProvider = UserModel.getAvatarImageProvider(avatarUrl);
+                  Expanded(
+                    child: Row(
+                      children: [
+                        // Stacked Initials (take up to 3 to keep compact on all screens)
+                        if (item.attendeeInitials.isNotEmpty) ...[
+                          SizedBox(
+                            width: (item.attendeeInitials.take(3).length * 16.0) + 12,
+                            height: 26,
+                            child: Stack(
+                              children: List.generate(item.attendeeInitials.take(3).length, (idx) {
+                                final avatarUrl = (idx < item.attendeeAvatars.length) ? item.attendeeAvatars[idx] : null;
+                                final imageProvider = UserModel.getAvatarImageProvider(avatarUrl);
 
-                            return Positioned(
-                              left: idx * 16.0,
-                              child: Container(
-                                width: 26,
-                                height: 26,
-                                decoration: BoxDecoration(
-                                  color: [
-                                    AppColors.surfaceContainerHighest,
-                                    AppColors.secondaryContainer,
-                                    AppColors.tertiaryFixed,
-                                    AppColors.surfaceContainerHigh,
-                                  ][idx % 4],
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isDark ? AppColors.darkSurfaceCard : Colors.white,
-                                    width: 1.5,
+                                return Positioned(
+                                  left: idx * 16.0,
+                                  child: Container(
+                                    width: 26,
+                                    height: 26,
+                                    decoration: BoxDecoration(
+                                      color: [
+                                        AppColors.surfaceContainerHighest,
+                                        AppColors.secondaryContainer,
+                                        AppColors.tertiaryFixed,
+                                        AppColors.surfaceContainerHigh,
+                                      ][idx % 4],
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: isDark ? AppColors.darkSurfaceCard : Colors.white,
+                                        width: 1.5,
+                                      ),
+                                      image: imageProvider != null
+                                          ? DecorationImage(
+                                              image: imageProvider,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : null,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: imageProvider == null
+                                        ? Text(
+                                            item.attendeeInitials[idx],
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.onSurface,
+                                            ),
+                                          )
+                                        : null,
                                   ),
-                                  image: imageProvider != null
-                                      ? DecorationImage(
-                                          image: imageProvider,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : null,
-                                ),
-                                alignment: Alignment.center,
-                                child: imageProvider == null
-                                    ? Text(
-                                        item.attendeeInitials[idx],
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.w700,
-                                          color: AppColors.onSurface,
-                                        ),
-                                      )
-                                    : null,
-                              ),
-                            );
-                          }),
+                                );
+                              }),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        Flexible(
+                          child: Text(
+                            '${item.confirmedCount} / ${item.totalSlots} confirmed',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11,
+                              color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${item.confirmedCount} / ${item.totalSlots} confirmed',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11,
-                          color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   InkWell(
                     onTap: () => _toggleJoin(item),
                     borderRadius: BorderRadius.circular(12),

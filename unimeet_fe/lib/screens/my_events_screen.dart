@@ -266,91 +266,97 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
   Widget _buildEventList(List<MeetupItem> events, bool isDark, String emptyMessage) {
     if (events.isEmpty) {
       return Center(
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.08),
-                  shape: BoxShape.circle,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 680),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.event_busy_rounded,
+                    color: AppColors.primary,
+                    size: 36,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.event_busy_rounded,
-                  color: AppColors.primary,
-                  size: 36,
+                const SizedBox(height: 16),
+                Text(
+                  'No Events in Schedule',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'No Events in Schedule',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                const SizedBox(height: 8),
+                Text(
+                  emptyMessage,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                    height: 1.4,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                emptyMessage,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
-                  color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (widget.onOpenDiscover != null) ...[
-                    OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.primary),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (widget.onOpenDiscover != null) ...[
+                      OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(color: AppColors.primary),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        onPressed: widget.onOpenDiscover,
+                        icon: const Icon(Icons.explore_outlined, size: 18),
+                        label: Text(
+                          'Discover Events',
+                          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
+                        ),
                       ),
-                      onPressed: widget.onOpenDiscover,
-                      icon: const Icon(Icons.explore_outlined, size: 18),
+                      const SizedBox(width: 12),
+                    ],
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                      ),
+                      onPressed: _handleHostNew,
+                      icon: const Icon(Icons.add_rounded, size: 18),
                       label: Text(
-                        'Discover Events',
+                        'Host Meetup',
                         style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
                       ),
                     ),
-                    const SizedBox(width: 12),
                   ],
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                    ),
-                    onPressed: _handleHostNew,
-                    icon: const Icon(Icons.add_rounded, size: 18),
-                    label: Text(
-                      'Host Meetup',
-                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-      itemCount: events.length,
-      itemBuilder: (context, index) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 680),
+        child: ListView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+          itemCount: events.length,
+          itemBuilder: (context, index) {
         final event = events[index];
         final isHost = _isCurrentUserHost(event);
         final ticketCode = _findTicketCode(event.id);
@@ -512,34 +518,41 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.qr_code_2_rounded, size: 18, color: AppColors.primary),
-                                const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'CAMPUS TURNSTILE PASS',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: 0.5,
-                                        color: AppColors.outline,
-                                      ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.qr_code_2_rounded, size: 18, color: AppColors.primary),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'CAMPUS TURNSTILE PASS',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: 0.5,
+                                            color: AppColors.outline,
+                                          ),
+                                        ),
+                                        Text(
+                                          ticketCode,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w800,
+                                            color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      ticketCode,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w800,
-                                        color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                ],
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
@@ -613,6 +626,8 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
           ),
         );
       },
-    );
+    ),
+  ),
+);
   }
 }

@@ -73,42 +73,47 @@ class _MainShellState extends State<MainShell> {
         ),
         child: SafeArea(
           top: false,
-          child: SizedBox(
-            height: 64,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(0, Icons.explore_outlined, Icons.explore, 'Discover', isDark),
-                _buildNavItem(1, Icons.confirmation_number_outlined, Icons.confirmation_number, 'My Events', isDark),
-                // Center Floating Host Button
-                InkWell(
-                  onTap: _openHostScreen,
-                  borderRadius: BorderRadius.circular(28),
-                  child: Container(
-                    width: 52,
-                    height: 52,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primaryContainer, AppColors.primary],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primaryContainer.withOpacity(0.4),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 680),
+              child: SizedBox(
+                height: 64,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItem(0, Icons.explore_outlined, Icons.explore, 'Discover', isDark),
+                    _buildNavItem(1, Icons.confirmation_number_outlined, Icons.confirmation_number, 'My Events', isDark),
+                    // Center Floating Host Button
+                    InkWell(
+                      onTap: _openHostScreen,
+                      borderRadius: BorderRadius.circular(28),
+                      child: Container(
+                        width: 52,
+                        height: 52,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppColors.primaryContainer, AppColors.primary],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryContainer.withOpacity(0.4),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
-                      ],
+                        child: const Icon(Icons.add, color: Colors.white, size: 28),
+                      ),
                     ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 28),
-                  ),
+                    _buildNavItem(2, Icons.forum_outlined, Icons.forum, 'Squads', isDark, badge: '3'),
+                    _buildNavItem(3, Icons.person_outline, Icons.person, 'Profile', isDark),
+                  ],
                 ),
-                _buildNavItem(2, Icons.forum_outlined, Icons.forum, 'Squads', isDark, badge: '3'),
-                _buildNavItem(3, Icons.person_outline, Icons.person, 'Profile', isDark),
-              ],
+              ),
             ),
           ),
         ),

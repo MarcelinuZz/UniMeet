@@ -465,9 +465,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
-                ListView(
-                  padding: const EdgeInsets.only(bottom: 120),
-                  children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 680),
+                    child: ListView(
+                      padding: const EdgeInsets.only(bottom: 120),
+                      children: [
                     // 1. Hero Cover Banner with Tags
                     Stack(
                       children: [
@@ -1124,6 +1127,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
 
                 // Pinned Sticky Bottom RSVP Bar
                 Positioned(
@@ -1143,145 +1148,164 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         ),
                       ],
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 680),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
                               children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                                  textBaseline: TextBaseline.alphabetic,
-                                  children: [
-                                    Text(
-                                      _cost.toUpperCase() == 'FREE' ? 'FREE' : _cost,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w800,
-                                        color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
-                                      ),
-                                    ),
-                                    Text(
-                                      ' / participant',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 11,
-                                        color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: BoxDecoration(
-                                        color: spotsRemaining == 0
-                                            ? AppColors.statusTrendingCoral
-                                            : AppColors.statusOpenEmerald,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      spotsRemaining == 0
-                                          ? 'Squad capacity full'
-                                          : '$spotsRemaining spots left',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        color: spotsRemaining == 0
-                                            ? AppColors.statusTrendingCoral
-                                            : AppColors.statusOpenEmerald,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            if (_isHost) ...[
-                              OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppColors.statusTrendingCoral,
-                                  side: const BorderSide(color: AppColors.statusTrendingCoral, width: 1.2),
-                                  backgroundColor: AppColors.statusTrendingCoral.withOpacity(0.08),
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                ),
-                                onPressed: _confirmDeleteMeetup,
-                                icon: const Icon(Icons.delete_outline_rounded, size: 16),
-                                label: Text(
-                                  'Delete Meet',
-                                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                            ],
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _isHost
-                                    ? AppColors.accentElectricViolet
-                                    : (_isJoined ? AppColors.statusOpenEmerald : AppColors.primary),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                elevation: 3,
-                              ),
-                              onPressed: _handleJoinFlow,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Icon(
-                                        _isHost
-                                            ? Icons.campaign_rounded
-                                            : (_isJoined ? Icons.check_circle_rounded : Icons.login_rounded),
-                                        size: 16,
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                                        textBaseline: TextBaseline.alphabetic,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              _cost.toUpperCase() == 'FREE' ? 'FREE' : _cost,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.plusJakartaSans(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w800,
+                                                color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            ' / participant',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 11,
+                                              color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        _isHost
-                                            ? 'Hosting • Squad Chat'
-                                            : (_isJoined ? 'In Squad • Chat' : 'Join Squad'),
-                                        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 6,
+                                            height: 6,
+                                            decoration: BoxDecoration(
+                                              color: spotsRemaining == 0
+                                                  ? AppColors.statusTrendingCoral
+                                                  : AppColors.statusOpenEmerald,
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: Text(
+                                              spotsRemaining == 0
+                                                  ? 'Squad capacity full'
+                                                  : '$spotsRemaining spots left',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.plusJakartaSans(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w700,
+                                                color: spotsRemaining == 0
+                                                    ? AppColors.statusTrendingCoral
+                                                    : AppColors.statusOpenEmerald,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                  Text(
-                                    _isHost
-                                        ? 'Host Controls'
-                                        : (_isJoined ? 'Spot Confirmed ✓' : 'Instant RSVP'),
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 9,
-                                      color: Colors.white.withOpacity(0.85),
+                                ),
+                                const SizedBox(width: 8),
+                                if (_isHost) ...[
+                                  OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.statusTrendingCoral,
+                                      side: const BorderSide(color: AppColors.statusTrendingCoral, width: 1.2),
+                                      backgroundColor: AppColors.statusTrendingCoral.withOpacity(0.08),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                    ),
+                                    onPressed: _confirmDeleteMeetup,
+                                    icon: const Icon(Icons.delete_outline_rounded, size: 16),
+                                    label: Text(
+                                      'Delete',
+                                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12),
                                     ),
                                   ),
+                                  const SizedBox(width: 6),
                                 ],
-                              ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _isHost
+                                        ? AppColors.accentElectricViolet
+                                        : (_isJoined ? AppColors.statusOpenEmerald : AppColors.primary),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                    elevation: 3,
+                                  ),
+                                  onPressed: _handleJoinFlow,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            _isHost
+                                                ? Icons.campaign_rounded
+                                                : (_isJoined ? Icons.check_circle_rounded : Icons.login_rounded),
+                                            size: 15,
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            _isHost
+                                                ? 'Hosting • Squad Chat'
+                                                : (_isJoined ? 'In Squad • Chat' : 'Join Squad'),
+                                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        _isHost
+                                            ? 'Host Controls'
+                                            : (_isJoined ? 'Spot Confirmed ✓' : 'Instant RSVP'),
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 9,
+                                          color: Colors.white.withOpacity(0.85),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.lock_open, size: 12, color: AppColors.primary),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    'Instant turnstile digital pass & active squad group chat',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 10,
+                                      color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.lock_open, size: 12, color: AppColors.primary),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Instant turnstile digital pass & active squad group chat',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 10,
-                                color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
