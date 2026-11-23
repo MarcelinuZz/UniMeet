@@ -13,7 +13,7 @@ class HostMeetupScreen extends StatefulWidget {
 
 class _HostMeetupScreenState extends State<HostMeetupScreen> {
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController(text: 'Library Study Room');
+  final TextEditingController _locationController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
 
   String _selectedCategory = 'Academic';
@@ -36,30 +36,12 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
     {'name': 'Outdoor', 'icon': Icons.park, 'color': AppColors.tertiary},
   ];
 
-  final List<String> _locationPresets = [
-    'Library Study Room',
-    'Sports Hall',
-    'Campus Food Court',
-    'Syahdan Area',
-    'Custom Venue',
-  ];
-
   @override
   void dispose() {
     _titleController.dispose();
     _locationController.dispose();
     _descController.dispose();
     super.dispose();
-  }
-
-  void _appendTag(String text) {
-    setState(() {
-      if (_descController.text.trim().isEmpty) {
-        _descController.text = text;
-      } else {
-        _descController.text = '${_descController.text.trim()} $text';
-      }
-    });
   }
 
   String _formatDate(DateTime dt) {
@@ -272,79 +254,6 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Progress Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'STEP 1 OF 3',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.primary,
-                    letterSpacing: 0.6,
-                  ),
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: AppColors.statusOpenEmerald,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      'Auto-saving',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-
-            // 3-Segment Progress Bar
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Container(
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkSurfaceContainer : AppColors.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Container(
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkSurfaceContainer : AppColors.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
             // Title Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -363,7 +272,7 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
                         ),
                       ),
                       Text(
-                        'Details, vibes & crowd preferences',
+                        'Fill in meetup details and preferences',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 12,
                           color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.onSurfaceVariant,
@@ -475,7 +384,7 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
                           const Icon(Icons.category_outlined, size: 18, color: AppColors.primary),
                           const SizedBox(width: 6),
                           Text(
-                            'Category & Vibe',
+                            'Category',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -784,52 +693,33 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
             ),
             const SizedBox(height: 14),
 
-            // 4. Campus Location Input & Presets
+            // 4. Meeting Point Input
             _buildCardWrapper(
               isDark: isDark,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.near_me, size: 18, color: AppColors.primary),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Campus Meeting Point',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryFixed,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.verified, size: 12, color: AppColors.primary),
-                            const SizedBox(width: 4),
-                            Text(
-                              'On-Campus',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ],
+                      const Icon(Icons.location_on_outlined, size: 18, color: AppColors.primary),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Meeting Point',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Where should everyone meet up?',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11,
+                      color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Container(
@@ -840,7 +730,7 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.search, size: 18, color: AppColors.outline),
+                        const Icon(Icons.near_me, size: 18, color: AppColors.primary),
                         const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
@@ -851,50 +741,13 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
                               color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
                             ),
                             decoration: const InputDecoration(
-                              hintText: 'Select Location or type venue...',
+                              hintText: 'Enter meeting point or venue...',
                               border: InputBorder.none,
                               isDense: true,
                             ),
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: _locationPresets.map((loc) {
-                        final isSelected = _locationController.text == loc;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _locationController.text = loc == 'Custom Venue' ? '' : loc;
-                              });
-                            },
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? (isDark ? AppColors.primaryContainer : AppColors.onSurface)
-                                    : (isDark ? AppColors.darkSurfaceContainerLow : AppColors.surfaceContainerLow),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                loc,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected ? Colors.white : (isDark ? AppColors.darkOnSurface : AppColors.onSurface),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
                     ),
                   ),
                 ],
@@ -1037,49 +890,29 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
             ),
             const SizedBox(height: 14),
 
-            // 6. Meetup Vibe & Details Textarea
+            // 6. Meetup Details Textarea
             _buildCardWrapper(
               isDark: isDark,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.forum, size: 18, color: AppColors.primary),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Meetup Vibe & Details',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppColors.campusOrange.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          '🎉 Casual',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.campusOrange,
-                          ),
+                      const Icon(Icons.description_outlined, size: 18, color: AppColors.primary),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Meetup Details',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'What should attendees expect or bring along?',
+                    'What should attendees know or bring along?',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 11,
                       color: isDark ? AppColors.darkOnSurfaceVariant : AppColors.outline,
@@ -1094,28 +927,17 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
                     ),
                     child: TextField(
                       controller: _descController,
-                      maxLines: 3,
+                      maxLines: 4,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 13,
                         color: isDark ? AppColors.darkOnSurface : AppColors.onSurface,
                       ),
                       decoration: const InputDecoration(
-                        hintText: 'Bring your laptop, headphones, chill vibes. We will do 45-min focus sprints with quick coffee breaks in between...',
+                        hintText: 'Share what you will be doing, expectations, and any materials or tools needed...',
                         border: InputBorder.none,
                         isDense: true,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  // Quick Prompt Chips
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      _buildPromptChip('+ 🎒 Study Gear', () => _appendTag('🎒 Bring quiet study gear')),
-                      _buildPromptChip('+ ☕ Coffee run', () => _appendTag('☕ Coffee & snacks on you')),
-                      _buildPromptChip('+ ⚡ Beginners welcome', () => _appendTag('⚡ Beginners welcome!')),
-                    ],
                   ),
                 ],
               ),
@@ -1315,28 +1137,6 @@ class _HostMeetupScreenState extends State<HostMeetupScreen> {
         ],
       ),
       child: child,
-    );
-  }
-
-  Widget _buildPromptChip(String text, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          text,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: AppColors.primary,
-          ),
-        ),
-      ),
     );
   }
 }
